@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>VideoDisPlay.qml</file>
+        <file>VideoPlayList.qml</file>
+        <file>Dialogs.qml</file>
+        <file>MySquareButton.qml</file>
+        <file>MyRadioButton.qml</file>
+        <file>images/裁剪1.svg</file>
+        <file>images/完成.svg</file>
+        <file>images/音量.svg</file>
+        <file>VideoBottomContainer.qml</file>
+        <file>images/播放 三角形.svg</file>
+        <file>images/合并.svg</file>
+        <file>images/暂停2.svg</file>
+        <file>images/等待.svg</file>
+        <file>images/壁纸.png</file>
+    </qresource>
+</RCC>
