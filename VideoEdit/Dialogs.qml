@@ -3,7 +3,7 @@ import QtQuick.Dialogs 1.2 as QQD
 import QtQuick.Controls 2.0 as QQC
 
 Item {
-    property alias videoFileDialog:videoFileOpen
+    property alias fileOpenDialog:fileOpen
     property alias messageDialog: messageDialog
     property alias saveCutDialog: saveCutDialog
     property alias aboutDialog:aboutDialog
@@ -14,8 +14,8 @@ Item {
     property alias inputMergeFileNameDialog: inputMergeFileName
     property alias inputMergeName: inputMergeName
 
-    function openVideoFileDialog() {
-        videoFileOpen.open();
+    function openFileDialog() {
+        fileOpen.open();
     }
     function openMessageDialog() {
         messageDialog.open();
@@ -35,10 +35,10 @@ Item {
     }
     //文件窗口
     QQD.FileDialog{
-        id:videoFileOpen
-        title: "select the video files"
+        id:fileOpen
+        title: "select the file"
         folder: shortcuts.documents
-        nameFilters: ["video files(*.mp4 *.mkv *.avi *.mpg *.ts *.mov)"]
+        //nameFilters: ["video files(*.mp4 *.mkv *.avi *.mpg *.ts *.mov)"]
         selectMultiple: true
     }
     //提醒窗口

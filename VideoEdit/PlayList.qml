@@ -5,6 +5,8 @@ import QtMultimedia 5.12
 Item {
     property alias view: view
     property var sum: []
+    property var queue: []
+
     function isHasChecked()
     {
         var count = 0;
@@ -21,10 +23,10 @@ Item {
     }
     function selectFiles(fileNames)
     {
-        videoDisplay.mediaPlayer.playlists.clear();
+        display.mediaPlayer.playlists.clear();
         for(var i = 0; i < fileNames.length; i++)
         {
-            videoDisplay.mediaPlayer.playlists.addItem(fileNames[i])
+            display.mediaPlayer.playlists.addItem(fileNames[i])
         }
     }
     function convertFileName(source)
@@ -40,7 +42,7 @@ Item {
         ListView{
             id: view
             anchors.fill: parent
-            model: videoDisplay.mediaPlayer.playlists
+            model: display.mediaPlayer.playlists
             clip: true
             spacing: 3
             focus: true
@@ -79,10 +81,10 @@ Item {
                     anchors.fill: parent;
                     hoverEnabled: true
                     onPressed: {
-                        videoDisplay.mediaPlayer.playlists.currentIndex = index
-                        videoBottomContainer.playButton.imgSource = "images/暂停2.svg"
-                        if(videoDisplay.mediaPlayer.playbackState !== MediaPlayer.PlayingState){
-                            videoDisplay.mediaPlayer.play();
+                        display.mediaPlayer.playlists.currentIndex = index
+                        bottomContainer.playButton.imgSource = "images/暂停2.svg"
+                        if(display.mediaPlayer.playbackState !== MediaPlayer.PlayingState){
+                            display.mediaPlayer.play();
                         }
                         if (view.lastCurrentIndex != -1) {
                             if(view.itemAtIndex(view.lastCurrentIndex)){
@@ -92,16 +94,21 @@ Item {
                         view.currentIndex = index
                         if(view.lastCurrentIndex != index)
                         {
-                            videoDisplay.rangeSlider.visible = false
-                            videoDisplay.slider.visible = true
-                            videoDisplay.rangeSlider.first.value = 0
-                            videoDisplay.rangeSlider.second.value = 0
+                            display.rangeSlider.visible = false
+                            display.slider.visible = true
+                            display.rangeSlider.first.value = 0
+                            display.rangeSlider.second.value = 0
                         }
+
                         color = "#CCCCCC"
                         view.lastCurrentIndex = index
 
                         box.checked = !(box.checked)
                         sum[view.currentIndex]++;
+                        if(sum[view.currentIndex] % 2 != 0) {
+                            console.log(view.currentIndex)
+                            queue.push(view.currentIndex)
+                        }
                     }
                     onEntered:{
                         if(view.currentIndex == index)

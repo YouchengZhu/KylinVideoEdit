@@ -3,8 +3,8 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import QtMultimedia 5.12
 import VideoEdit 1.0
-import QtQuick.Window 2.0
-Window {
+
+ApplicationWindow {
     property var nowFilePath: []
     property var cutflag: 0
     width: 1280
@@ -39,7 +39,7 @@ Window {
                 height: 60
                 text: "打开"
                 onClicked: {
-                    dialogs.openVideoFileDialog();
+                    dialogs.openFileDialog();
                     drawer.close();
                 }
             }
@@ -62,18 +62,39 @@ Window {
             }
         }
     }
+
+    Rectangle{
+        width: 100
+        height: 45
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.topMargin: 35
+        anchors.rightMargin: 40
+        color: "red"
+        Text {
+            id: name
+            text: qsTr("添加背景音乐")
+        }
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+
+            }
+        }
+    }
+
     Dialogs{
         id:dialogs
-        videoFileDialog.onAccepted:
+        fileOpenDialog.onAccepted:
         {
-            videoDisplay.image.visible = false
-            var fileNames = dialogs.videoFileDialog.fileUrls;
-            videoPlaylist.selectFiles(fileNames);
-            videoPlaylist.sum.length = fileNames.length
-            for(var i = 0; i < videoPlaylist.sum.length; i++)
-                videoPlaylist.sum[i] = 0;
-            videoDisplay.rangeSlider.visible = false
-            videoDisplay.slider.visible = true
+            display.image.visible = false
+            var fileNames = dialogs.fileOpenDialog.fileUrls;
+            playlist.selectFiles(fileNames);
+            playlist.sum.length = fileNames.length
+            for(var i = 0; i < playlist.sum.length; i++)
+                playlist.sum[i] = 0;
+            display.rangeSlider.visible = false
+            display.slider.visible = true
         }
         //保存裁剪文件
         saveCutDialog.onAccepted: {
@@ -83,7 +104,7 @@ Window {
             console.log("inputFileNameDialog.onYes")
             var dstSource = saveCutDialog.folder +"/" +inputCutName.text + ".mp4";
             console.log("dstSource"+dstSource)
-            videoEdit.videoIntercept(videoDisplay.mediaPlayer.playlist.currentItemSource, dstSource, videoDisplay.rangeSlider.first.value/1000, videoDisplay.rangeSlider.second.value/1000);
+            videoEdit.videoIntercept(display.mediaPlayer.playlist.currentItemSource, dstSource, display.rangeSlider.first.value/1000, display.rangeSlider.second.value/1000);
             inputCutName.text = ""
         }
 
@@ -95,7 +116,12 @@ Window {
             var dstSource = saveMergeDialog.folder +"/" +inputMergeName.text + ".mp4";
             var dstName = inputMergeName.text + ".mp4"
             var dstPath = saveMergeDialog.folder + "/";
-            videoEdit.videoMerge(nowFilePath,dstName,dstPath)
+
+            var path = dstPath + dstName;
+            console.log(path)
+
+
+            videoEdit.addBackGroundMusic("file:///root/麒麟/testvideo/那些年，我们一起追的女孩.mp4","file:///root/麒麟/testvideo/test.mp3",path)
             inputCutName.text = ""
         }
     }
@@ -106,10 +132,10 @@ Window {
         opacity: 0.5
         anchors.top: radioBtn.bottom
         anchors.topMargin: 20
-        width: videoPlaylist.width
+        width: playlist.width
     }
-    VideoPlayList{
-        id: videoPlaylist
+    PlayList{
+        id: playlist
         width: parent.width / 5 * 1;
         anchors.left: parent.left;
         anchors.top: radioBtn.bottom;
@@ -117,14 +143,13 @@ Window {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 110
     }
-    //视频合并按钮
+    //合并按钮
     MyRadioButton{
-        id: mergeBtn
         radius: 40
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 25
         anchors.left: parent.left;
-        anchors.leftMargin: (videoPlaylist.width - width)/2
+        anchors.leftMargin: (playlist.width - width)/2
         imgSource: "images/合并.svg"
         opacity: 0.2
         imgWidth: 40
@@ -132,33 +157,39 @@ Window {
         color: "gray"
 
         onClicked:{
-            if(dialogs.videoFileDialog.fileUrls.length === 0)
+            if(dialogs.fileOpenDialog.fileUrls.length === 0)
             {
                 dialogs.messageDialog.mytext = "请导入视频资源!"
                 dialogs.openMessageDialog()
             }else{
                 nowFilePath.length = 0
-                if(!videoPlaylist.isHasChecked())
+                if(!playlist.isHasChecked())
                 {
                     dialogs.openMessageDialog();
                 }
-                var fileNames = dialogs.videoFileDialog.fileUrls
+                var fileNames = dialogs.fileOpenDialog.fileUrls
 
-                for (var i = 0;i < videoPlaylist.sum.length;i++)
+                for (var i = 0;i < playlist.sum.length;i++)
                 {
-                    if(videoPlaylist.sum[i] !== 0)
+                    if(playlist.sum[i] !== 0)
                     {
                         nowFilePath.push(fileNames[i]);
                     }
                 }
+                for (var i = 0;i < playlist.queue.length;i++)
+                {
+                    console.log("queue[" + i + "] = " + fileNames[playlist.queue[i]]);
+                }
                 dialogs.openSaveMergeDialog()
             }
+
+
         }
     }
-    VideoDisPlay{
-        id: videoDisplay
+    DisPlay{
+        id: display
         height: parent.height / 8 * 7;
-        anchors.left: videoPlaylist.right
+        anchors.left: playlist.right
         anchors.leftMargin: 10
         anchors.top: radioBtn.bottom;
         anchors.topMargin: 30
@@ -167,50 +198,51 @@ Window {
     }
 
     Rectangle{
-
-        anchors.top: mergeBtn.top
+        anchors.top: display.bottom
         anchors.bottom: parent.bottom
-        anchors.left: videoPlaylist.right
-        VideoBottomContainer{
-            id:videoBottomContainer
+        anchors.left: playlist.right
+        BottomContainer{
+            id: bottomContainer
+            x: 269
+            y: -102
             width: 499
             height: 85
-            x: (videoDisplay.width - width)/2
+
             playButton.onClicked: {
                 console.log("play")
-                if(videoDisplay.mediaPlayer.playbackState === 1) {
-                    videoDisplay.mediaPlayer.pause()
+                if(display.mediaPlayer.playbackState === 1) {
+                    display.mediaPlayer.pause()
                     playButton.imgSource = "images/播放 三角形.svg"
                 }else {
-                    videoDisplay.mediaPlayer.play()
+                    display.mediaPlayer.play()
                     playButton.imgSource = "images/暂停2.svg"
                 }
             }
             cutButton.onClicked: {
-                if(videoDisplay.slider.visible == true)//当前在播放模式 切换到裁剪模式
+                if(display.slider.visible == true)//当前在播放模式 切换到裁剪模式
                 {
                     cutflag = 1
-                    videoDisplay.slider.visible = false
-                    videoDisplay.rangeSlider.visible = true
+                    display.slider.visible = false
+                    display.rangeSlider.visible = true
 
                     console.log("cutButton.onClicked 当前已切换成裁剪模式")
-                    console.log("display.slider.visible" + videoDisplay.slider.visible)
-                    console.log("display.rangeSlider.visible" + videoDisplay.rangeSlider.visible)
+                    console.log("display.slider.visible" + display.slider.visible)
+                    console.log("display.rangeSlider.visible" + display.rangeSlider.visible)
 
                     cutButton.imgSource = "images/裁剪1"
                 }
                 else//当前在裁剪模式 切换到播放模式
                 {
                     cutflag = 0
-                    videoDisplay.rangeSlider.visible = false
-                    videoDisplay.slider.visible = true
+                    display.rangeSlider.visible = false
+                    display.slider.visible = true
                     console.log("cutButton.onClicked 当前已切换成播放模式")
-                    console.log("videodisplay.slider.visible" + videoDisplay.slider.visible)
-                    console.log("videodisplay.rangeSlider.visible" + videoDisplay.rangeSlider.visible)
+                    console.log("display.slider.visible" + display.slider.visible)
+                    console.log("display.rangeSlider.visible" + display.rangeSlider.visible)
 
                     cutButton.imgSource = "images/等待.svg"
                 }
-                videoDisplay.mediaPlayer.pause()
+                display.mediaPlayer.pause()
                 playButton.imgSource = "images/播放 三角形.svg"
             }
             finishButton.onClicked: {
@@ -233,9 +265,3 @@ Window {
     }
 }
 
-
-/*##^##
-Designer {
-    D{i:0;formeditorZoom:0.75}
-}
-##^##*/

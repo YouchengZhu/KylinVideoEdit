@@ -122,7 +122,6 @@ int VideoEdit::videoMerge(QList<QString> fileList,QString dstName,QString dstPat
 
     QList<QString> finalfileList = tempInputFiles;
     QFile file("in.txt");
-
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         return -1;
@@ -142,3 +141,67 @@ int VideoEdit::videoMerge(QList<QString> fileList,QString dstName,QString dstPat
     return 0;
 }
 
+int VideoEdit::addBackGroundMusic(QString inputVideoPath, QString inputMusicPath, QString outputPath)
+{
+    //ffmpeg -i 那些年，我们一起追的女孩.mp4 -i test.mp3 -filter_complex amix=inputs=2:duration=first:dropout_transition=2 output.mp4
+    QString cmd = "ffmpeg -i " + inputVideoPath.right(inputVideoPath.length()-7) + " -i " + inputMusicPath.right(inputMusicPath.length()-7) +
+                  " -filter_complex amix=inputs=2:duration=first:dropout_transition=2 " + outputPath.right(outputPath.length()-7);
+    qDebug()<<cmd;
+    QProcess *process = new QProcess();
+    process->start(cmd);
+    delete process;
+    return 0;
+}
+
+int VideoEdit::videoAddBackgroundMusic(QString file1, QString file2, double duration, QString file3)
+{
+    std::string str1;
+    str1 = file1.toStdString();
+    std::string str2;
+    str2 = file2.toStdString();
+    std::string str3;
+    str3 = file3.toStdString();
+    cmd = "ffmpeg -an -i " + str1 + " -stream_loop -1 -i " + str2 + " -t " + doubleToString(duration) + " -y " + str3;
+    processingCommand(cmd);
+}
+
+int VideoEdit::screenshot(QString filepath1, double start_time, QString filepath2)
+{
+    std::string str1;
+    str1 = filepath1.toStdString();
+    std::string str2;
+    str2 = filepath2.toStdString();
+    cmd = "ffmpeg -i " + str1 + " -y -f image2 -ss " + doubleToString(start_time) + " -vframes 1 -s " + "640x360 " + str2;
+    processingCommand(cmd);
+}
+
+int VideoEdit::addWatermark(QString filepath1, QString filepath2, double x, double y, QString filepath3)
+{
+    std::string str1 = filepath1.toStdString();
+    std::string str2 = filepath2.toStdString();
+    std::string str3 = filepath3.toStdString();
+    cmd = "ffmpeg -i " + str2 + " -vf scale=100:-1" + " /root/tmp.jpg";
+    processingCommand(cmd);
+    cmd = "ffmpeg -i " + str1 + " -i " + "/root/tmp.jpg" + " -filter_complex overlay=" + doubleToString(x) + ":" + doubleToString(y) + " -y " + str3;
+    processingCommand(cmd);
+    cmd = "rm /root/tmp.jpg";
+    processingCommand(cmd);
+}
+
+int VideoEdit::videoSplit(QString filepath1, QString filepath2, QString filepath3, double split_time, double duration)
+{
+    videoIntercept(filepath1, filepath2, 0, split_time);
+    videoIntercept(filepath1, filepath3, split_time, duration);
+}
+
+void VideoEdit::processingCommand(std::string command)
+{
+    QString Qcmd = QString::fromStdString(command);
+    QProcess* proc = new QProcess;
+    qDebug()<< "cmd is "<< Qcmd;
+    if(proc->state() != proc->NotRunning)
+    {
+        proc->waitForFinished(20000);
+    }
+    proc->start(Qcmd);
+}
