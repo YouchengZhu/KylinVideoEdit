@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>MyRadioButton.qml</file>
+        <file>MySquareButton.qml</file>
+        <file>EditToolBar.qml</file>
+        <file>Dialogs.qml</file>
+        <file>Header.qml</file>
+        <file>MySaveDialog.qml</file>
+        <file>FileDrawer.qml</file>
+        <file>PlayList.qml</file>
+        <file>images/播放.svg</file>
+        <file>images/裁剪.svg</file>
+        <file>images/合并.svg</file>
+        <file>images/音量.svg</file>
+        <file>images/暂停.svg</file>
+        <file>images/拆分.svg</file>
+        <file>images/截屏.svg</file>
+        <file>images/画中画.svg</file>
+        <file>images/音乐背景.svg</file>
+        <file>images/后退.svg</file>
+        <file>images/快进.svg</file>
+        <file>images/全屏.svg</file>
+        <file>images/缩小.svg</file>
+        <file>VideoPlayWindow.qml</file>
+        <file>AudioPlayWindow.qml</file>
+        <file>images/壁纸.png</file>
+        <file>MyRangeSlider.qml</file>
+        <file>MySlider.qml</file>
+    </qresource>
+</RCC>
