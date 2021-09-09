@@ -28,5 +28,6 @@
         <file>images/壁纸.png</file>
         <file>MyRangeSlider.qml</file>
         <file>MySlider.qml</file>
+        <file>images/完成.svg</file>
     </qresource>
 </RCC>

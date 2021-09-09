@@ -111,7 +111,6 @@ Item {
                 timer.running = true
             }
             second.onMoved: {
-                finishText.text = currentTime(second.value)
                 console.log(second.value)
             }
         }

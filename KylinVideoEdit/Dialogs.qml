@@ -4,6 +4,8 @@ import QtQuick.Controls 2.0 as QQC
 Item {
 //1.打开视频文件对话框
     property alias videoFileDialog: videoFileDialog
+    property var  checkBoxState : true
+
     function openVideoFileDialog()
     {
         videoFileDialog.open();
@@ -114,6 +116,7 @@ Item {
 
     //6.背景音乐选择对话框
     property alias addBackgroundMusicDialog: addBackgroundMusicDialog
+    property alias checkBox:  checkBox
     function openAddBackgroundMusicDialog()
     {
         addBackgroundMusicDialog.open();
@@ -128,7 +131,15 @@ Item {
             QQC.CheckBox{
                 id:checkBox
                 anchors.centerIn:parent
+                checked: true
                 text: "是否去除视频原音"
+                onCheckedChanged: {
+                    if(checked === false)
+                        checkBoxState = false
+                    else
+                        checkBoxState = true
+
+                }
             }
 
             QQC.Button{
@@ -137,16 +148,16 @@ Item {
                 anchors.left: checkBox.left
                 text:"选择背景音乐"
                 onClicked: {
-                    musicSDialog.open()
-
+                    musicSelectDialog.open()
                 }
             }
         }
     }
 
     //7.背景音乐选择对话框
+    property  alias musicSelectDialog: musicSelectDialog
     QQD.FileDialog{
-        id: musicSDialog
+        id: musicSelectDialog
         title: qsTr("select the backgroundMusic files")
         folder: shortcuts.documents
         nameFilters: ["audio files(*.mp3 *.aac *.wav)"]

@@ -4,23 +4,14 @@
 #include <unistd.h>
 #include <QFile>
 
-std::string doubleToString1(double num)
+int AudioEdit::audioSplit(QString inputFilePath,QString outputFilePath1,QString outputFilePath2,const double startTime,double duration)
 {
-    char str[256];
-    sprintf(str, "%lf", num);
-    std::string result = str;
-    return result;
-}
-
-int AudioEdit::audioSplit(QString inputPath, QString outputPath1, QString outputPath2, const double time,double duration)
-{
-    int ret1 = audioIntercept(inputPath, outputPath1,0,time);
-    int ret2 = audioIntercept(inputPath, outputPath2,time, duration);
+    int ret1 = audioIntercept(inputFilePath, outputFilePath1,0,startTime);
+    int ret2 = audioIntercept(inputFilePath, outputFilePath2,startTime, duration);
     return (ret1==ret2) && ret1 == 0;
-
 }
 
-int AudioEdit::audioMerge(QList<QString> inputPaths, QString outputPath)
+int AudioEdit::audioMerge(QList<QString> inputFilePaths,QString outputFilePath)
 {
 
     QFile file("inputList.txt");
@@ -30,37 +21,38 @@ int AudioEdit::audioMerge(QList<QString> inputPaths, QString outputPath)
     }
     QTextStream stream(&file);
 
-    for (int i = 0; i < inputPaths.length();i++)
+    for (int i = 0; i < inputFilePaths.length();i++)
     {
-        stream << "file \'" << inputPaths[i].right(inputPaths[i].length()-7) <<"\'"<<"\n";
+        stream << "file \'" << inputFilePaths[i].right(inputFilePaths[i].length()-7) <<"\'"<<"\n";
     }
 
-    QProcess *process = new QProcess();
-    QString cmd = "ffmpeg -f concat -safe 0 -i inputList.txt -c copy " + outputPath.right(outputPath.length()-7);
-    qDebug()<<cmd;
-    process->start(cmd);
+
+    QString cmd = "ffmpeg -f concat -safe 0 -i inputList.txt -c copy " + outputFilePath.right(outputFilePath.length()-7);
+    process(cmd);
 
     return 0;
 
 }
 
-int AudioEdit::audioIntercept(const QString filepath1, const QString filepath2, const double start_time, const double end_time)
+int AudioEdit::audioIntercept(QString inputFilePath,QString outputFilePath, const double startTime, const double endTime)
 {
-    std::string str1 = filepath1.toStdString();
-    std::string str2 = filepath2.toStdString();
-    QString str = "hello" + filepath1;
-    cmd = "ffmpeg -i " + str1 + " -ss " + doubleToString1(start_time) + " -t " + doubleToString1(end_time-start_time) + " -acodec copy "  +  str2 + " -y";
-    processingCommand(cmd);
+    inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
+    outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
+
+//    QString str = "hello" + filepath1;
+    cmd = "ffmpeg -i " + inputFilePath + " -ss " + QString::number(startTime,10,4) + " -t " + QString::number(endTime - startTime,10,4) + " -acodec copy "  +  outputFilePath + " -y";
+    process(cmd);
 }
 
-void AudioEdit::processingCommand(std::string command)
+
+void AudioEdit::process(QString command)
 {
-    QString Qcmd = QString::fromStdString(command);
-    QProcess* proc = new QProcess;
-    qDebug()<< "cmd is "<< Qcmd;
-    if(proc->state() != proc->NotRunning)
+    QProcess *process = new QProcess;
+    qDebug()<<"cmd is "<< command;
+    if(process-> state() != process->NotRunning)
     {
-        proc->waitForFinished(20000);
+        process->waitForFinished(20000);
     }
-    proc->start(Qcmd);
+    process->start(command);
 }
+

@@ -11,6 +11,8 @@ Item {
     property alias picInPicBtn: picInPicBtn
     //4.截屏
     property alias screenShotBtn: screenShotBtn
+    //5.完成
+    property alias finishBtn: finishBtn
     Row{
         spacing: 55
         MyRadioButton{
@@ -30,6 +32,16 @@ Item {
             imgHeight: 40
             imgWidth: 40
             imgSource: "images/裁剪.svg"
+        }
+        MyRadioButton{
+            id: finishBtn
+            visible: false
+            radius: 40
+            color: "gray"
+            opacity: 0.2
+            imgHeight: 40
+            imgWidth: 40
+            imgSource: "images/完成.svg"
         }
         MyRadioButton{
             id: picInPicBtn

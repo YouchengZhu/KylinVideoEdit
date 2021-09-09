@@ -13,6 +13,13 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+
+    QString applicationDirPath = QCoreApplication::applicationDirPath();
+//    qDebug() << "applicationDirPath: " << applicationDirPath;
+
+    engine.rootContext()->setContextProperty("appPath", applicationDirPath);
+
+
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     qmlRegisterType<VideoEdit>("VideoEdit", 1, 0, "VideoEdit");
     qmlRegisterType<AudioEdit>("AudioEdit", 1, 0, "AudioEdit");
