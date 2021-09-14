@@ -15,10 +15,12 @@ int AudioEdit::audioMerge(QList<QString> inputFilePaths,QString outputFilePath)
 {
 
     QFile file("inputList.txt");
+
     if(!file.open(QIODevice::WriteOnly|QIODevice::Text))
     {
         return -1;
     }
+
     QTextStream stream(&file);
 
     for (int i = 0; i < inputFilePaths.length();i++)
@@ -27,8 +29,8 @@ int AudioEdit::audioMerge(QList<QString> inputFilePaths,QString outputFilePath)
     }
 
 
-    QString cmd = "ffmpeg -f concat -safe 0 -i inputList.txt -c copy " + outputFilePath.right(outputFilePath.length()-7);
-    process(cmd);
+    QString m_cmd = "ffmpeg -f concat -safe 0 -i inputList.txt -c copy " + outputFilePath.right(outputFilePath.length()-7);
+    process(m_cmd);
 
     return 0;
 
@@ -39,16 +41,15 @@ int AudioEdit::audioIntercept(QString inputFilePath,QString outputFilePath, cons
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
     outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
 
-//    QString str = "hello" + filepath1;
-    cmd = "ffmpeg -i " + inputFilePath + " -ss " + QString::number(startTime,10,4) + " -t " + QString::number(endTime - startTime,10,4) + " -acodec copy "  +  outputFilePath + " -y";
-    process(cmd);
+    m_cmd = "ffmpeg -i " + inputFilePath + " -ss " + QString::number(startTime,10,4) + " -t " + QString::number(endTime - startTime,10,4) + " -acodec copy "  +  outputFilePath + " -y";
+    process(m_cmd);
 }
 
 
 void AudioEdit::process(QString command)
 {
     QProcess *process = new QProcess;
-    qDebug()<<"cmd is "<< command;
+    qDebug()<<"m_cmd is "<< command;
     if(process-> state() != process->NotRunning)
     {
         process->waitForFinished(20000);

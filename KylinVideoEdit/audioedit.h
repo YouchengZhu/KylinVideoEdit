@@ -11,27 +11,31 @@ class AudioEdit: public QObject
      Q_OBJECT
 public slots:
     int audioSplit(QString inputFilePath,QString outputFilePath1,QString outputFilePath2,const double startTime,double duration);
-    //音频的拆分
-    //参数1：输入音频文件路径
-    //参数2：导出音频文件路径1
-    //参数3：导出音频文件路径2
-    //参数4：拆分的时间点
-    //参数5：输入音频文件的总时长
+    //音频拆分
+    //inputFilePath：输入音频文件路径
+    //outputFilePath1：导出音频文件路径1
+    //outoutFilePath2：导出音频文件路径2
+    //startTime：拆分的时间点
+    //duration：输入音频文件的总时长
 
     int audioMerge(QList<QString> inputFilePaths,QString outputFilePath);
-    //两段音频文件的连接
-    //参数1：需要进行合并的多个音频文件路径
-    //参数2：输出的音频文件路径
+    //音频连接
+    //inputFilePaths：需要进行合并的多个音频文件路径
+    //outputFilePath：输出的音频文件路径
 
     int audioIntercept(QString inputFilePath, QString outputFilePath, const double startTime, const double endTime);
-    //音频文件的裁剪
-    //参数1：输入音频文件路径
-    //参数2：导出音频文件路径
-    //参数3：开始截取时间
-    //参数4：结束截取时间
+    //音频裁剪
+    //inputFilePath：输入音频文件路径
+    //outputFilePath：导出音频文件路径
+    //startTime：开始截取时间
+    //endTime：结束截取时间
+
     void process(QString command);
+    //执行命令行
+    //command:命令行指令
+
 private:
-    QString cmd;
+    QString m_cmd;
 };
 
 #endif // AUDIOEDIT_H

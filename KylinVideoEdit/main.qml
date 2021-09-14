@@ -225,26 +225,37 @@ Window {
             //用户只选择了视频资源文件
             if(videoPlayList.isHasChecked() && !audioPlayList.isChecked())
             {
+                videoPlayList.chosedSource = videoPlayList.reverse(videoPlayList.chosedSource);
+                videoPlayList.chosedSource =  videoPlayList.unique(videoPlayList.chosedSource);
+                videoPlayList.chosedSource = videoPlayList.reverse(videoPlayList.chosedSource);
+                videoPlayList.chosedSource = videoPlayList.check(videoPlayList.chosedSource)
+
                 var fileNames = dialogs.videoFileDialog.fileUrls
 
                 for (var i = 0; i < videoPlayList.chosedSource.length;i++)
                 {
                     inputFilepaths.push(fileNames[videoPlayList.chosedSource[i]])
-                    console.log(inputFilepaths[i])
                 }
+
+
                 videoEdit.videoMerge(inputFilepaths,"","")
                 videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")//生成临时文件
             }
             //用户只选择了音频资源文件
             if(audioPlayList.isHasChecked() && !videoPlayList.isChecked())
             {
+                audioPlayList.chosedSource = audioPlayList.reverse(audioPlayList.chosedSource);
+                audioPlayList.chosedSource =  audioPlayList.unique(audioPlayList.chosedSource);
+                audioPlayList.chosedSource = audioPlayList.reverse(audioPlayList.chosedSource);
+                audioPlayList.chosedSource =  audioPlayList.check(audioPlayList.chosedSource)
+
                 var fileNames = dialogs.audioFileDialog.fileUrls
 
                 for (var i = 0; i < audioPlayList.chosedSource.length;i++)
                 {
                     inputFilepaths.push(fileNames[audioPlayList.chosedSource[i]])
-                    console.log(inputFilepaths[i])
                 }
+
                 audioEdit.audioMerge(inputFilepaths,"file:///root/1.mp3")
             }
         }
@@ -334,7 +345,7 @@ Window {
             {
                 videoPlayWindow.slider.visible = true
                 videoPlayWindow.rangeSlider.visible = false
-                videoEdit.videoIntercept(videoPlayWindow.mediaPlayer.playlist.currentItemSource, videoPlayWindow.rangeSlider.first.value/1000, videoPlayWindow.rangeSlider.second.value/ 1000)
+                videoEdit.videoIntercept(videoPlayWindow.mediaPlayer.playlist.currentItemSource,"file:///root/610.mp4" ,videoPlayWindow.rangeSlider.first.value/1000, videoPlayWindow.rangeSlider.second.value/ 1000)
             }else{
                 audioPlayWindow.slider.visible = true
                 audioPlayWindow.rangeSlider.visible = false
@@ -360,7 +371,7 @@ Window {
                 dialogs.messageDialog.mytext = "请选择需要进行操作的视频"
                 dialogs.openMessageBox()
             }else{
-                videoEdit.addWatermark(videoPlayWindow.mediaPlayer.playlist.currentItemSource, "file:///root/4.jpg", 40, 40, "file:///root/5.mp4")
+                videoEdit.addPicInPic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, "file:///root/4.jpg", 40, 40, "file:///root/5.mp4")
             }
         }
         //截图
@@ -380,6 +391,7 @@ Window {
             }else{
                 videoEdit.screenshot(videoPlayWindow.mediaPlayer.playlist.currentItemSource, 8, "file:///root/4.jpg")
             }
+
         }
     }
 

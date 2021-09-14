@@ -7,23 +7,20 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-int VideoEdit::videoIntercept(QString inputFilePath,const double startTime, const double endTime)
+int VideoEdit::videoIntercept(QString inputFilePath,QString outputFilePath,const double startTime, const double endTime)
 {
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
+    outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
 
     //先将视频转换为全部为关键帧的视频
-    cmd = "ffmpeg -i " + inputFilePath + " -strict -2 -qscale 0 -input " + "./intercept.mp4";
-    process(cmd);
+    m_cmd = "ffmpeg -i " + inputFilePath + " -strict -2 -qscale 0 -input " + "./intercept.mp4";
+    process(m_cmd);
 
-    cmd = "ffmpeg -ss " +  QString::number(startTime,10,4) + " -i " + inputFilePath  + " -t " + QString::number(endTime - startTime,10,4) + " -c copy  ./新视频1.mp4"  + " -y";
-    process(cmd);
+    m_cmd = "ffmpeg -ss " +  QString::number(startTime,10,4) + " -i " + inputFilePath  + " -t " + QString::number(endTime - startTime,10,4) + " -c copy  "+ outputFilePath  + " -y";
+    process(m_cmd);
 
-    cmd = "rm ./intercept.mp4";
-    process(cmd);
-
-    cmd = "mv ./新视频1.mp4 ./新视频.mp4";
-    qDebug()<<cmd;
-    process(cmd);
+    m_cmd = "rm ./intercept.mp4";
+    process(m_cmd);
 
     return 0;
 }
@@ -100,12 +97,11 @@ int VideoEdit::videoMerge(QList<QString> fileList)
     }
 
 
-    cmd = "ffmpeg -f concat -safe 0 -i ./in.txt -c copy  ./新视频1.mp4 -y" ;
-    process(cmd);
+    m_cmd = "ffmpeg -f concat -safe 0 -i ./in.txt -c copy  ./新视频1.mp4 -y" ;
+    process(m_cmd);
 
 //    cmd = "mv ./新视频1.mp4 ./新视频.mp4";
-////    process(cmd);
-//    QProcess::execute(cmd);
+
     return 0;
 }
 
@@ -116,43 +112,43 @@ int VideoEdit::videoAddBackgroundMusic(QString inputVideoFilePath, QString input
     inputAudioFilePath = inputAudioFilePath.right(inputAudioFilePath.length() - 7);
     outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
 
-    cmd = "ffmpeg -an -i " + inputVideoFilePath + " -stream_loop -1 -i " + inputAudioFilePath + " -t " + QString::number(duration,10,4) + " -y " + outputFilePath;
-    process(cmd);
+    m_cmd = "ffmpeg -an -i " + inputVideoFilePath + " -stream_loop -1 -i " + inputAudioFilePath + " -t " + QString::number(duration,10,4) + " -y " + outputFilePath;
+    process(m_cmd);
     return 0;
 }
 
 int VideoEdit::addBackGroundMusic(QString inputVideoFilePath, QString inputMusicFilePath,QString outputFilePath)
 {
-    cmd = "ffmpeg -i " + inputVideoFilePath.right(inputVideoFilePath.length()-7) + " -i " + inputMusicFilePath.right(inputMusicFilePath.length()-7) +
+    m_cmd = "ffmpeg -i " + inputVideoFilePath.right(inputVideoFilePath.length()-7) + " -i " + inputMusicFilePath.right(inputMusicFilePath.length()-7) +
             " -filter_complex amix=inputs=2:duration=first:dropout_transition=2 " + outputFilePath.right(outputFilePath.length()-7);
 
-    process(cmd);
+    process(m_cmd);
 
     return 0;
 
 }
 
-int VideoEdit::screenshot(QString inputFilePath, double startTime, QString outputFilePath)
+int VideoEdit::screenshot(QString inputFilePath, double shotTime, QString outputFilePath)
 {
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
     outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
 
-    cmd = "ffmpeg -i " + inputFilePath + " -y -f image2 -ss " + QString::number(startTime,10,4) + " -vframes 1 -s " + "640x360 " + outputFilePath;
-    process(cmd);
+    m_cmd = "ffmpeg -i " + inputFilePath + " -y -f image2 -ss " + QString::number(shotTime,10,4) + " -vframes 1 -s " + "640x360 " + outputFilePath;
+    process(m_cmd);
 }
 
-int VideoEdit::addWatermark(QString inputVideoFilePath, QString inputImgFilePath, double x, double y, QString outFilePath)
+int VideoEdit::addPicInPic(QString inputVideoFilePath, QString inputImgFilePath, double x, double y, QString outputFilePath)
 {
     inputVideoFilePath = inputVideoFilePath.right(inputVideoFilePath.length() - 7);
     inputImgFilePath = inputImgFilePath.right(inputImgFilePath.length() - 7);
-    outFilePath = outFilePath.right(outFilePath.length() - 7);
+    outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
 
-    cmd = "ffmpeg -i " + inputImgFilePath + " -vf scale=100:-1" + " /root/tmp.jpg";
-    process(cmd);
-    cmd = "ffmpeg -i " + inputVideoFilePath + " -i " + "/root/tmp.jpg" + " -filter_complex overlay=" + QString::number(x,10,4) + ":" + QString::number(y,10,4) + " -y " + outFilePath;
-    process(cmd);
-    cmd = "rm /root/tmp.jpg";
-    process(cmd);
+    m_cmd = "ffmpeg -i " + inputImgFilePath + " -vf scale=100:-1" + " /root/tmp.jpg";
+    process(m_cmd);
+    m_cmd = "ffmpeg -i " + inputVideoFilePath + " -i " + "/root/tmp.jpg" + " -filter_complex overlay=" + QString::number(x,10,4) + ":" + QString::number(y,10,4) + " -y " + outputFilePath;
+    process(m_cmd);
+    m_cmd = "rm /root/tmp.jpg";
+    process(m_cmd);
 
     return 0;
 }
@@ -162,20 +158,20 @@ int VideoEdit::videoSplit(QString inputFilePath, QString outputFilePath1, QStrin
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
 
     //先将视频转换为全部为关键帧的视频
-    cmd = "ffmpeg -i " + inputFilePath + " -strict -2 -qscale 0 -input " + "./intercept.mp4";
-    process(cmd);
+    m_cmd = "ffmpeg -i " + inputFilePath + " -strict -2 -qscale 0 -input " + "./intercept.mp4";
+    process(m_cmd);
 
-    cmd = "ffmpeg -ss " +  QString::number(0,10,4) + " -i " + inputFilePath  + " -t " + QString::number(splitTime,10,4) + " -c copy " + outputFilePath1.right(outputFilePath1.length()-7)  + " -y";
-    process(cmd);
+    m_cmd = "ffmpeg -ss " +  QString::number(0,10,4) + " -i " + inputFilePath  + " -t " + QString::number(splitTime,10,4) + " -c copy " + outputFilePath1.right(outputFilePath1.length()-7)  + " -y";
+    process(m_cmd);
 
-    cmd = "rm ./intercept.mp4";
-    process(cmd);
+    m_cmd = "rm ./intercept.mp4";
+    process(m_cmd);
 
-    cmd = "ffmpeg -ss " +  QString::number(splitTime,10,4) + " -i " + inputFilePath  + " -t " + QString::number(duration-splitTime,10,4) + " -c copy " + outputFilePath2.right(outputFilePath2.length() - 7)  + " -y";
-    process(cmd);
+    m_cmd = "ffmpeg -ss " +  QString::number(splitTime,10,4) + " -i " + inputFilePath  + " -t " + QString::number(duration-splitTime,10,4) + " -c copy " + outputFilePath2.right(outputFilePath2.length() - 7)  + " -y";
+    process(m_cmd);
 
-    cmd = "rm ./intercept.mp4";
-    process(cmd);
+    m_cmd = "rm ./intercept.mp4";
+    process(m_cmd);
 
     return 0;
 }
