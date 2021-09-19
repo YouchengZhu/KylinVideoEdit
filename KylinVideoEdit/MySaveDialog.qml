@@ -154,6 +154,7 @@ Item{
             folderPath.text = currentFolder;
             console.log("currentFolder" + folderPath.text)
         }
+        modality: Qt.ApplicationModal
     }
 }
 

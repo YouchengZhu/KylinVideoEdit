@@ -4,8 +4,15 @@ import QtQuick.Window 2.0
 import VideoEdit 1.0
 import AudioEdit 1.0
 
+ import QtQml 2.15
+
+
 Window {
     property var inputFilepaths: []
+    property var fileUrls: ["file:///root/麒麟剪辑器/testvideo/屌丝男士.mov", "file:///root/麒麟剪辑器/testvideo/中国合伙人.flv"]
+    property var musicFile//背景音乐文件路径
+    property var picFile//画中画图片文件路径
+
     width: 1280
     height: 900
     visible: true
@@ -36,11 +43,16 @@ Window {
             }
 
             //用户导入了视频资源文件且选中了视频
-            if(dialogs.videoFileDialog.fileUrls.length !== 0 && videoPlayList.isChecked()){
+            if(dialogs.videoFileDialog.fileUrls.length !== 0 && videoPlayList.isChecked())                                                                                                                                                                          {
+                //1.打开背景音乐对话框
                 dialogs.openAddBackgroundMusicDialog()
+                //2.初始化背景音乐列表
+                dialogs.bgMusicPlayList.selectFiles(fileUrls)
+                //3.视频终止
+                videoPlayWindow.mediaPlayer.pause()
+                //4.音频终止
+                audioPlayWindow.mediaPlayer.pause()
             }
-
-
         }
     }
     FileDrawer{
@@ -61,6 +73,9 @@ Window {
             videoPlayList.sum.length = fileNames.length
             for(var j = 0; j < videoPlayList.sum.length; j++)
                 videoPlayList.sum[j] = 0;
+
+            //3.画中画清除
+            dialogs.addPicInPicDialog.targetVideoIndex = -1;
         }
         //2.音频文件对话框
         audioFileDialog.onAccepted: {
@@ -76,19 +91,55 @@ Window {
         }
         //3.保存文件对话框
         saveDialog.onAccepted:{
-
         }
 
         //4.背景音乐选择对话框
         musicSelectDialog.onAccepted: {
-            var musicFile = dialogs.musicSelectDialog.fileUrl
-            console.log(dialogs.checkBoxState)
+            //1）被点击背景音乐停止播放
+            dialogs.addBackgroundMusicDialog.bgMusicPlayWindow.mediaPlayer.pause();
+            //2)显示选择列表项
+            dialogs.addBackgroundMusicDialog.bgMusicPlayWindow.playlists.addItems(musicSelectDialog.fileUrls)
+            musicFile = dialogs.musicSelectDialog.fileUrl//获取背景音乐的文件路径
+        }
 
-            if(dialogs.checkBoxState){//添加背景音乐，去除视频原声
-                videoEdit.videoAddBackgroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile,videoPlayWindow.mediaPlayer.duration / 1000, "file:///root/6.mp4")
-            }else{//添加背景音乐，不去除视频原音
-                videoEdit.addBackGroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile, "file:///root/1.mp4")
+        //信号绑定
+        Connections{
+            target:dialogs.addBackgroundMusicDialog
+            onConfirm:{
+                if(dialogs.addBackgroundMusicDialog.checkBoxState){//添加背景音乐，去除视频原声
+                    videoEdit.videoAddBackgroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile,videoPlayWindow.mediaPlayer.duration / 1000, "file:///root/6.mp4")
+                }else{
+                    //添加背景音乐，不去除视频原音
+                    videoEdit.addBackGroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile, "file:///root/1.mp4")
+                }
             }
+        }
+
+        //5.画中画选择素材库确认选择
+        addPicInPicDialog.acceptBtn.onClicked: {
+            //1)切换当前目标视频索引
+            addPicInPicDialog.targetVideoIndex = videoPlayWindow.playlists.currentIndex//当前列表项为画中画显示列表
+            console.log("@@@@@@addPicInPicDialog.targetVideoIndex"+ addPicInPicDialog.targetVideoIndex)
+            //2)画中画窗口显示
+            videoPlayWindow.picInPicWindow.visible = true;
+            videoPlayWindow.picInPicWindow.selectPicSource = addPicInPicDialog.finalPic
+        }
+
+        //6.画中画选择本地
+        picInPicSelectDialog.onAccepted: {
+            //1)画中画窗口显示
+//            videoPlayWindow.picInPicWindow.visible = true;
+//            videoPlayWindow.picInPicWindow.selectPicSource = picInPicSelectDialog.fileUrl
+            //1）所选图片显示在addPinInPicDialog窗口中
+            for(var i = 0; i < picInPicSelectDialog.fileUrls.length; i++)
+            {
+                dialogs.addPicInPicDialog.fileNames.push(dialogs.picInPicSelectDialog.fileUrls[i])
+            }
+            dialogs.addPicInPicDialog.displayImageByGrid()
+            //(修改)
+            console.log("videoPlayWindow.playlists.currentIndex"+videoPlayWindow.playlists.currentIndex)
+            addPicInPicDialog.targetVideoIndex = videoPlayWindow.playlists.currentIndex//当前列表项为画中画显示列表
+            console.log("addPicInPicDialog.targetVideoIndex"+ addPicInPicDialog.targetVideoIndex)
         }
     }
     //左侧文件播放列表
@@ -103,7 +154,7 @@ Window {
         width: parent.width / 5 * 1;
     }
     MySquareButton{
-        id: vidioButton
+        id: videoButton
         text: qsTr("视频")
         textColor: "black";
         defaultColor: "gray"
@@ -115,15 +166,15 @@ Window {
             dialogs.openVideoFileDialog()
         }
     }
+    //定位修改
     PlayList{
         id: videoPlayList
         currentPlayWindow: videoPlayWindow
         width: fileListBtn.width
         anchors.left: parent.left;
-        anchors.top: header.bottom;
-        anchors.topMargin: 110
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 110 + videoPlayWindow.height / 2 - 70;
+        anchors.top: videoButton.bottom;
+        anchors.topMargin: 5
+        height: (videoPlayWindow.height - fileListBtn.height - videoButton.height * 2)/2 - 20
         onPlay: {
             console.log("视频播放")
             videoPlayWindow.mediaPlayer.play();
@@ -141,21 +192,22 @@ Window {
         defaultColor: "gray"
         opacity: 0.5
         anchors.top: videoPlayList.bottom;
+        anchors.topMargin: 10
         height: fileListBtn.height - 6
         onClicked:
         {
             dialogs.openAudioFileDialog()
         }
     }
+    //定位修改
     PlayList{
         id: audioPlayList
         currentPlayWindow: audioPlayWindow
         width: fileListBtn.width
         anchors.left: parent.left;
-        anchors.top: videoPlayList.bottom;
-        anchors.topMargin: 50;
-        anchors.bottom: parent.bottom;
-        anchors.bottomMargin: 110;
+        anchors.top: audioButton.bottom;
+        anchors.topMargin: 5;
+        height: videoPlayList.height
         onPlay: {
             console.log("音频播放")
             audioPlayWindow.mediaPlayer.play();
@@ -168,25 +220,26 @@ Window {
     //视频播放窗口
     VideoPlayWindow{
         id: videoPlayWindow;
-        height: parent.height / 8 * 7;
         anchors.left: videoPlayList.right
         anchors.leftMargin: 10
         anchors.top: header.bottom;
         anchors.right: parent.right
         anchors.rightMargin: 30
-        anchors.bottom: audioPlayList.bottom
+        anchors.bottom: editToolBar.top
+        anchors.bottomMargin: 15
+
     }
     //音频播放窗口 默认为不可见
     AudioPlayWindow{
         id: audioPlayWindow;
         visible: false
-        height: parent.height / 8 * 7;
         anchors.left: videoPlayList.right
         anchors.leftMargin: 10
         anchors.top: header.bottom;
         anchors.right: parent.right
         anchors.rightMargin: 30
-        anchors.bottom: audioPlayList.bottom
+        anchors.bottom: editToolBar.top
+        anchors.bottomMargin: 15
     }
     //合并按钮
     MyRadioButton{
@@ -225,37 +278,26 @@ Window {
             //用户只选择了视频资源文件
             if(videoPlayList.isHasChecked() && !audioPlayList.isChecked())
             {
-                videoPlayList.chosedSource = videoPlayList.reverse(videoPlayList.chosedSource);
-                videoPlayList.chosedSource =  videoPlayList.unique(videoPlayList.chosedSource);
-                videoPlayList.chosedSource = videoPlayList.reverse(videoPlayList.chosedSource);
-                videoPlayList.chosedSource = videoPlayList.check(videoPlayList.chosedSource)
-
                 var fileNames = dialogs.videoFileDialog.fileUrls
 
                 for (var i = 0; i < videoPlayList.chosedSource.length;i++)
                 {
                     inputFilepaths.push(fileNames[videoPlayList.chosedSource[i]])
+                    console.log(inputFilepaths[i])
                 }
-
-
                 videoEdit.videoMerge(inputFilepaths,"","")
                 videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")//生成临时文件
             }
             //用户只选择了音频资源文件
             if(audioPlayList.isHasChecked() && !videoPlayList.isChecked())
             {
-                audioPlayList.chosedSource = audioPlayList.reverse(audioPlayList.chosedSource);
-                audioPlayList.chosedSource =  audioPlayList.unique(audioPlayList.chosedSource);
-                audioPlayList.chosedSource = audioPlayList.reverse(audioPlayList.chosedSource);
-                audioPlayList.chosedSource =  audioPlayList.check(audioPlayList.chosedSource)
-
                 var fileNames = dialogs.audioFileDialog.fileUrls
 
                 for (var i = 0; i < audioPlayList.chosedSource.length;i++)
                 {
                     inputFilepaths.push(fileNames[audioPlayList.chosedSource[i]])
+                    console.log(inputFilepaths[i])
                 }
-
                 audioEdit.audioMerge(inputFilepaths,"file:///root/1.mp3")
             }
         }
@@ -356,7 +398,7 @@ Window {
             cutBtn.visible = true
         }
 
-        //画中画
+        //画中画 (新增对话框)
         picInPicBtn.onClicked:
         {
             //用户没有导入视频资源文件
@@ -371,9 +413,26 @@ Window {
                 dialogs.messageDialog.mytext = "请选择需要进行操作的视频"
                 dialogs.openMessageBox()
             }else{
-                videoEdit.addPicInPic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, "file:///root/4.jpg", 40, 40, "file:///root/5.mp4")
+                //弹出画中画对话框
+                dialogs.addPicInPicDialog.open()
+                dialogs.addPicInPicDialog.displayImageByGrid()
             }
         }
+
+        Connections{
+            target: dialogs.addPicInPicDialog
+            onSendPic:{
+                picFile = path//获取画中画图片文件的路径
+            }
+        }
+
+        Connections{
+            target: videoPlayWindow.picInPicWindow
+            onConfirm:{
+                videoEdit.addWatermark(videoPlayWindow.mediaPlayer.playlist.currentItemSource,picFile,videoPlayWindow.picInPicWindow.x,videoPlayWindow.picInPicWindow.y,"file:///root/5.mp4")//进行添加画中画的操作
+            }
+        }
+
         //截图
         screenShotBtn.onClicked:
         {
@@ -391,7 +450,6 @@ Window {
             }else{
                 videoEdit.screenshot(videoPlayWindow.mediaPlayer.playlist.currentItemSource, 8, "file:///root/4.jpg")
             }
-
         }
     }
 

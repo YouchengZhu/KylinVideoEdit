@@ -2,7 +2,9 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtMultimedia 5.12
 
-Item {
+Item{
+    //--------------
+    property alias picInPicWindow: picInPicWindow
     property alias mediaPlayer: player
     property alias playbackState: player.playbackState
     property alias playlists: player.playlists
@@ -15,7 +17,6 @@ Item {
     property alias image: image
     property alias slider: slider
     property alias rangeSlider:rangeSlider
-
 
     //时间格式转换函数
     function currentTime(time)
@@ -53,6 +54,7 @@ Item {
                 id: playlists
             }
             loops: 4
+
         }
         VideoOutput{
             id: videoOutput;
@@ -72,7 +74,15 @@ Item {
                 source: "images/壁纸.png"
             }
         }
-
+        //增加画中画
+        MyDragRectangle{
+            id: picInPicWindow
+            z:10
+            visible: false;
+            width: 480;
+            height: 240;
+            dragBackground: video;
+        }
     }
     //2.进度 播放控制
     Rectangle{

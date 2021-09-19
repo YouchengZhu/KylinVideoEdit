@@ -40,7 +40,6 @@ Rectangle {
         verticalAlignment: Image.AlignVCenter
         width: 0
         height: 0
-//        source: "images/播放1.svg"
     }
 }
 

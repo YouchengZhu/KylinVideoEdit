@@ -9,6 +9,8 @@ Item {
     signal pauseAudio()
     property var sum: []
     property var chosedSource: []
+    property var isCurrentVideo
+
     property alias listModel: view.model//对应两个音视频播放窗口
     property var currentPlayWindow;//当前列表对应播放窗口
     signal click();//列表数据项点击激发信号
@@ -28,7 +30,6 @@ Item {
         }
         return false;
     }
-
     function selectFiles(fileNames)
     {
         currentPlayWindow.playlists.clear();
@@ -53,26 +54,18 @@ Item {
         }
         return false;
     }
-
-    //函数三:对数组进行逆序
-    function reverse(arr){
-        var temp;
-        for(var i=0;i < arr.length/2;i++){
-        temp=arr[i];
-        arr[i]=arr[arr.length-1-i];
-        arr[arr.length-1-i]=temp;
+    //函数三: 判断视频列表切换后画中画是否在目标视频
+    function isTargetVideoIndex(targetVideoIndex)
+    {
+        if(videoPlayWindow.playlists.currentIndex === targetVideoIndex)
+        {
+            console.log("@@@是目标视频索引")
+            return true;
         }
-        return arr;
+        console.log("@@@不是目标视频索引")
+        return false;
     }
-
-
-    //函数四：数组去重
-    function unique(arr) {
-        return Array.from(new Set(arr))
-    }
-
-
-    //函数五：转换文件路径名
+    //转换文件路径名
     function convertFileName(source)
     {
         var pos = JSON.stringify(source).lastIndexOf('/');
@@ -80,28 +73,6 @@ Item {
         var finalName = name.substr(0, name.length - 1);
         return finalName;
     }
-
-    //函数六：对合并数组进行检查
-    function check(arr)
-    {
-        var tmp = []
-        for (var i = 0;i < sum.length;i++)
-        {
-            if (sum[i] % 2 !== 0) tmp.push(i)
-        }
-
-        var finalArr = []
-
-        for (var i = 0;i < arr.length;i++)
-        {
-            for (var j = 0;j < tmp.length;j++)
-            {
-                if(arr[i] === tmp[j]) finalArr.push(arr[i])
-            }
-        }
-        return finalArr;
-    }
-
     Rectangle{
         anchors.fill: parent
         color: "#F7F7F7"
@@ -151,6 +122,8 @@ Item {
                     hoverEnabled: true
                     onPressed: {
                         console.log(source)
+                        //1.当前列表项为点击列表项
+                        currentPlayWindow.playlists.currentIndex = index
                         //点击列表项为视频
                         if(currentPlayWindow === videoPlayWindow)
                         {
@@ -159,16 +132,27 @@ Item {
                             videoPlayWindow.visible = true
                             //2.将音频暂停
                             pauseAudio();
-                        }else//点击列表项为音频
+                            //---------点击列表项切换 画中画
+                            console.log("@@@@切换后：dialogs.addPicInPicDialog.targetVideoIndex " + dialogs.addPicInPicDialog.targetVideoIndex)
+                            if(isTargetVideoIndex(dialogs.addPicInPicDialog.targetVideoIndex))
+                            {
+                                videoPlayWindow.picInPicWindow.visible = true;
+                            }else{
+                                videoPlayWindow.picInPicWindow.visible = false;
+                            }
+                        }else if(currentPlayWindow === audioPlayWindow)//点击列表项为音频
                         {
                             //1.调整窗口可见性
                             audioPlayWindow.visible = true;
                             videoPlayWindow.visible = false;
                             //2.将视频暂停
                             pauseVideo();
+                        }else{
+                            //1.将音频暂停
+                            pauseAudio();
+                            //2.将视频暂停
+                            pauseVideo();
                         }
-                        //当前列表项为点击列表项
-                        currentPlayWindow.playlists.currentIndex = index
                         //调整播放图标 未写代码
                         //设置播放
                         if(currentPlayWindow.playbackState !== MediaPlayer.PlayingState){
@@ -180,13 +164,6 @@ Item {
                             }
                         }
                         view.currentIndex = index
-//                        if(view.lastCurrentIndex != index)
-//                        {
-//                            videoDisplay.rangeSlider.visible = false
-//                            videoDisplay.slider.visible = true
-//                            videoDisplay.rangeSlider.first.value = 0
-//                            videoDisplay.rangeSlider.second.value = 0
-//                        }
                         color = "#CCCCCC"
                         view.lastCurrentIndex = index
 

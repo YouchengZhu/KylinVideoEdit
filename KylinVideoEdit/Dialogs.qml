@@ -75,13 +75,13 @@ Item {
         id: saveDialog
     }
 
-    //5.提醒对话框（提醒用户各种注意事项）
+    //5.提醒对话框（提醒用户各种注意事项）对话框修改
     property alias messageDialog: messageDialog;
     function openMessageBox()
     {
         messageDialog.open();
     }
-    QQD.MessageDialog {
+    QQD.Dialog {
         id: messageDialog
         property alias mytext: text.text
         title: "提醒"
@@ -114,52 +114,59 @@ Item {
         }
     }
 
-    //6.背景音乐选择对话框
+    //6.背景音乐选择对话框  修改为自定义对话框
     property alias addBackgroundMusicDialog: addBackgroundMusicDialog
-    property alias checkBox:  checkBox
     function openAddBackgroundMusicDialog()
     {
         addBackgroundMusicDialog.open();
     }
-    QQD.Dialog{
-        id:addBackgroundMusicDialog
-        title: "选择"
-        contentItem: Rectangle{
-            color: "white"
-            implicitWidth: 400
-            implicitHeight: 230
-            QQC.CheckBox{
-                id:checkBox
-                anchors.centerIn:parent
-                checked: true
-                text: "是否去除视频原音"
-                onCheckedChanged: {
-                    if(checked === false)
-                        checkBoxState = false
-                    else
-                        checkBoxState = true
 
-                }
-            }
-
-            QQC.Button{
-                anchors.top:checkBox.bottom
-                anchors.topMargin: 20
-                anchors.left: checkBox.left
-                text:"选择背景音乐"
-                onClicked: {
-                    musicSelectDialog.open()
-                }
-            }
+    property alias bgMusicPlayList:addBackgroundMusicDialog.bgMusicPlayList
+    MyBgmDialog{
+        id: addBackgroundMusicDialog
+        selectBtn.onClicked: {
+            //1）被点击背景音乐停止播放
+            addBackgroundMusicDialog.bgMusicPlayWindow.mediaPlayer.pause();
+            musicSelectDialog.open()
+        }
+        bgmAcceptBtn.onClicked:{
+            //1）被点击背景音乐停止播放
+            addBackgroundMusicDialog.bgMusicPlayWindow.mediaPlayer.pause();
+        }
+        bgmCancelBtn.onClicked:{
+            //1）被点击背景音乐停止播放
+            addBackgroundMusicDialog.bgMusicPlayWindow.mediaPlayer.pause();
         }
     }
 
     //7.背景音乐选择对话框
-    property  alias musicSelectDialog: musicSelectDialog
+    property alias musicSelectDialog: musicSelectDialog
     QQD.FileDialog{
         id: musicSelectDialog
         title: qsTr("select the backgroundMusic files")
         folder: shortcuts.documents
         nameFilters: ["audio files(*.mp3 *.aac *.wav)"]
+        selectMultiple: true
+    }
+
+    //8.画中画选择对话框  修改为自定义对话框
+    property alias addPicInPicDialog: addPicInPicDialog
+    MyPicInPicDialog{
+        id: addPicInPicDialog
+        selectBtn.onClicked: {
+            //选择本地图片
+            picInPicSelectDialog.open()
+        }
+    }
+
+    //9.本地图片选择对话框
+    property alias picInPicSelectDialog: picInPicSelectDialog
+    QQD.FileDialog{
+        id: picInPicSelectDialog
+        title: qsTr("select the picInPic files")
+        folder: shortcuts.documents
+        nameFilters: ["pic files(*.png *.jpg *.gif *.svg)"]
+        modality: Qt.ApplicationModal
+        selectMultiple: true
     }
 }
