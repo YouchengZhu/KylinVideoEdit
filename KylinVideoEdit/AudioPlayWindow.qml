@@ -105,10 +105,13 @@ Item {
             first.onMoved: {
                 console.log(first.value)
                 player.seek(first.value)
+                curText.text = currentTime(first.value) + " / " + currentTime(second.value)
                 timer.interval = second.value - first.value
                 timer.running = true
             }
             second.onMoved: {
+                curText.text = currentTime(first.value) + " / " + currentTime(second.value)
+                player.seek(second.value)
                 console.log(second.value)
             }
         }

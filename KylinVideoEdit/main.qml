@@ -4,7 +4,7 @@ import QtQuick.Window 2.0
 import VideoEdit 1.0
 import AudioEdit 1.0
 
- import QtQml 2.15
+import QtQml 2.15
 
 
 Window {
@@ -43,7 +43,8 @@ Window {
             }
 
             //用户导入了视频资源文件且选中了视频
-            if(dialogs.videoFileDialog.fileUrls.length !== 0 && videoPlayList.isChecked())                                                                                                                                                                          {
+            if(dialogs.videoFileDialog.fileUrls.length !== 0 && videoPlayList.isChecked())
+            {
                 //1.打开背景音乐对话框
                 dialogs.openAddBackgroundMusicDialog()
                 //2.初始化背景音乐列表
@@ -91,6 +92,9 @@ Window {
         }
         //3.保存文件对话框
         saveDialog.onAccepted:{
+            videoEdit.finishFile(dialogs.saveDialog.saveFileName)
+            dialogs.saveDialog.saveDialog.close()
+            console.log(dialogs.saveDialog.saveFileName)
         }
 
         //4.背景音乐选择对话框
@@ -107,10 +111,17 @@ Window {
             target:dialogs.addBackgroundMusicDialog
             onConfirm:{
                 if(dialogs.addBackgroundMusicDialog.checkBoxState){//添加背景音乐，去除视频原声
-                    videoEdit.videoAddBackgroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile,videoPlayWindow.mediaPlayer.duration / 1000, "file:///root/6.mp4")
+                    videoEdit.videoAddBackgroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile,videoPlayWindow.mediaPlayer.duration / 1000)
+
+                    videoPlayWindow.mediaPlayer.playlist.clear()
+                    videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")
+                    dialogs.addBackgroundMusicDialog.close()
                 }else{
                     //添加背景音乐，不去除视频原音
-                    videoEdit.addBackGroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile, "file:///root/1.mp4")
+                    videoEdit.addBackGroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile)
+                    videoPlayWindow.mediaPlayer.playlist.clear()
+                    videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")
+                    dialogs.addBackgroundMusicDialog.close()
                 }
             }
         }
@@ -119,7 +130,7 @@ Window {
         addPicInPicDialog.acceptBtn.onClicked: {
             //1)切换当前目标视频索引
             addPicInPicDialog.targetVideoIndex = videoPlayWindow.playlists.currentIndex//当前列表项为画中画显示列表
-            console.log("@@@@@@addPicInPicDialog.targetVideoIndex"+ addPicInPicDialog.targetVideoIndex)
+            console.log("addPicInPicDialog.targetVideoIndex"+ addPicInPicDialog.targetVideoIndex)
             //2)画中画窗口显示
             videoPlayWindow.picInPicWindow.visible = true;
             videoPlayWindow.picInPicWindow.selectPicSource = addPicInPicDialog.finalPic
@@ -128,8 +139,8 @@ Window {
         //6.画中画选择本地
         picInPicSelectDialog.onAccepted: {
             //1)画中画窗口显示
-//            videoPlayWindow.picInPicWindow.visible = true;
-//            videoPlayWindow.picInPicWindow.selectPicSource = picInPicSelectDialog.fileUrl
+            //            videoPlayWindow.picInPicWindow.visible = true;
+            //            videoPlayWindow.picInPicWindow.selectPicSource = picInPicSelectDialog.fileUrl
             //1）所选图片显示在addPinInPicDialog窗口中
             for(var i = 0; i < picInPicSelectDialog.fileUrls.length; i++)
             {
@@ -141,6 +152,31 @@ Window {
             addPicInPicDialog.targetVideoIndex = videoPlayWindow.playlists.currentIndex//当前列表项为画中画显示列表
             console.log("addPicInPicDialog.targetVideoIndex"+ addPicInPicDialog.targetVideoIndex)
         }
+
+        //7.截图
+        screenShotDialog.onAccepted: {
+             videoEdit.screenshot(videoPlayWindow.mediaPlayer.playlist.currentItemSource, 8,dialogs.screenShotDialog.saveFileName)
+            dialogs.screenShotDialog.close()
+        }
+
+        //8.视频拆分
+        videoSplitDialog.onAccepted: {
+            var outputPath1 = dialogs.videoSplitDialog.saveFileName1 + ".mp4";
+            var outputPath2 = dialogs.videoSplitDialog.saveFileName2 + ".mp4";
+
+            videoEdit.videoSplit(videoPlayWindow.mediaPlayer.playlist.currentItemSource,outputPath1,outputPath2,5,videoPlayWindow.mediaPlayer.duration)
+            dialogs.videoSplitDialog.close()
+        }
+
+        //9.音频拆分
+        audioSplitDialog.onAccepted: {
+            var outputPath1 = dialogs.audioSplitDialog.saveFileName1 + ".mp3";
+            var outputPath2 = dialogs.audioSplitDialog.saveFileName2 + ".mp3";
+
+            audioEdit.audioSplit(audioPlayWindow.mediaPlayer.playlist.currentItemSource,outputPath1,outputPath2,5,audioPlayWindow.mediaPlayer.duration)
+            dialogs.audioSplitDialog.close()
+        }
+
     }
     //左侧文件播放列表
     MySquareButton{
@@ -285,7 +321,9 @@ Window {
                     inputFilepaths.push(fileNames[videoPlayList.chosedSource[i]])
                     console.log(inputFilepaths[i])
                 }
-                videoEdit.videoMerge(inputFilepaths,"","")
+                videoPlayWindow.mediaPlayer.pause()
+                videoEdit.videoMerge(inputFilepaths)
+                videoPlayWindow.mediaPlayer.playlist.clear()
                 videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")//生成临时文件
             }
             //用户只选择了音频资源文件
@@ -298,7 +336,10 @@ Window {
                     inputFilepaths.push(fileNames[audioPlayList.chosedSource[i]])
                     console.log(inputFilepaths[i])
                 }
-                audioEdit.audioMerge(inputFilepaths,"file:///root/1.mp3")
+                audioPlayWindow.mediaPlayer.pause();
+                audioEdit.audioMerge(inputFilepaths);
+                audioPlayWindow.mediaPlayer.playlist.clear();
+                audioPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新音频.mp3")//生成临时文件
             }
         }
     }
@@ -331,16 +372,14 @@ Window {
                 //视频
                 if(videoPlayWindow.visible === true && videoPlayList.isChecked())
                 {
-                    console.log("视频拆分")
-                    console.log(videoPlayWindow.mediaPlayer.playlist.currentItemSource)
-
-                    videoEdit.videoSplit(videoPlayWindow.mediaPlayer.playlist.currentItemSource,"file:///root/1.mp4","file:///root/2.mp4",5,videoPlayWindow.mediaPlayer.duration)
+                    videoPlayWindow.mediaPlayer.pause()
+                    dialogs.videoSplitDialog.open()
                 }
                 //音频
-                if(audioPlayWindow.visible === true && audioPlayList.isChecked()){
-                    console.log("音频拆分")
-                    console.log(videoPlayWindow.mediaPlayer.playlist.currentItemSource)
-                    audioEdit.audioSplit(audioPlayWindow.mediaPlayer.playlist.currentItemSource,"file:///root/1.mp3","file:///root/2.mp3",5,audioPlayWindow.mediaPlayer.duration)
+                if(audioPlayWindow.visible === true && audioPlayList.isChecked())
+                {
+                    audioPlayWindow.mediaPlayer.pause()
+                    dialogs.audioSplitDialog.open()
                 }
             }
 
@@ -369,6 +408,7 @@ Window {
                     videoPlayWindow.slider.visible = false
                     videoPlayWindow.rangeSlider.visible = true
                     console.log(videoPlayWindow.rangeSlider.visible)
+                    videoPlayWindow.mediaPlayer.pause();
                 }
                 //音频
                 if(audioPlayWindow.visible === true && audioPlayList.isChecked())
@@ -376,6 +416,7 @@ Window {
                     audioPlayWindow.slider.visible = false
                     audioPlayWindow.rangeSlider.visible = true
                     console.log(audioPlayWindow.rangeSlider.visible)
+                    audioPlayWindow.mediaPlayer.pause();
                 }
                 cutBtn.visible = false;
                 finishBtn.visible = true
@@ -387,11 +428,21 @@ Window {
             {
                 videoPlayWindow.slider.visible = true
                 videoPlayWindow.rangeSlider.visible = false
-                videoEdit.videoIntercept(videoPlayWindow.mediaPlayer.playlist.currentItemSource,"file:///root/610.mp4" ,videoPlayWindow.rangeSlider.first.value/1000, videoPlayWindow.rangeSlider.second.value/ 1000)
+
+                videoEdit.videoIntercept(videoPlayWindow.mediaPlayer.playlist.currentItemSource,videoPlayWindow.rangeSlider.first.value/1000, videoPlayWindow.rangeSlider.second.value/ 1000)
+
+                videoPlayWindow.mediaPlayer.playlist.clear()
+                videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")//生成临时文件
+
+
             }else{
                 audioPlayWindow.slider.visible = true
                 audioPlayWindow.rangeSlider.visible = false
-                audioEdit.audioIntercept(audioPlayWindow.mediaPlayer.playlist.currentItemSource,"file:///root/3.mp3",audioPlayWindow.rangeSlider.first.value/1000, audioPlayWindow.rangeSlider.second.value/1000)
+
+                audioEdit.audioIntercept(audioPlayWindow.mediaPlayer.playlist.currentItemSource,audioPlayWindow.rangeSlider.first.value/1000, audioPlayWindow.rangeSlider.second.value/1000)
+
+                audioPlayWindow.mediaPlayer.playlist.clear()
+                audioPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新音频.mp3")//生成临时文件
             }
 
             finishBtn.visible = false
@@ -414,6 +465,7 @@ Window {
                 dialogs.openMessageBox()
             }else{
                 //弹出画中画对话框
+                videoPlayWindow.mediaPlayer.pause();
                 dialogs.addPicInPicDialog.open()
                 dialogs.addPicInPicDialog.displayImageByGrid()
             }
@@ -429,7 +481,10 @@ Window {
         Connections{
             target: videoPlayWindow.picInPicWindow
             onConfirm:{
-                videoEdit.addWatermark(videoPlayWindow.mediaPlayer.playlist.currentItemSource,picFile,videoPlayWindow.picInPicWindow.x,videoPlayWindow.picInPicWindow.y,"file:///root/5.mp4")//进行添加画中画的操作
+                videoEdit.addPicInPic(videoPlayWindow.mediaPlayer.playlist.currentItemSource,picFile,videoPlayWindow.picInPicWindow.x,videoPlayWindow.picInPicWindow.y)//进行添加画中画的操作
+
+                videoPlayWindow.mediaPlayer.playlist.clear()
+                videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")//生成临时文件
             }
         }
 
@@ -448,7 +503,8 @@ Window {
                 dialogs.messageDialog.mytext = "请选择需要进行操作的视频"
                 dialogs.openMessageBox()
             }else{
-                videoEdit.screenshot(videoPlayWindow.mediaPlayer.playlist.currentItemSource, 8, "file:///root/4.jpg")
+                videoPlayWindow.mediaPlayer.pause();
+                dialogs.screenShotDialog.open();
             }
         }
     }

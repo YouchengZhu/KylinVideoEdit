@@ -7,12 +7,14 @@ Item{
     property alias saveDialog: saveDialog
     property alias folderDialog: folderDialog
     property var saveFileName
-    property alias filter: comboBox.model
     signal accepted;
-
     function open()
     {
         saveDialog.open();
+    }
+    function close()
+    {
+        saveDialog.close()
     }
     QQD.Dialog{
         id: saveDialog;
@@ -97,26 +99,6 @@ Item{
                     }
                 }
                 RowLayout{
-                    width: parent.width;
-                    spacing: 10
-                    QQC.Label{
-                        id: filterLabel
-                        width: 100
-                        height: 60
-                        text: qsTr("过滤");
-                        font.pixelSize: 20
-                        anchors.verticalCenter: parent.verticalCenter;
-                    }
-                    QQC.ComboBox{
-                        id: comboBox
-                        anchors.left: filterLabel.right
-                        anchors.leftMargin: 10
-                        anchors.right: parent.right;
-                        height: 60
-                        model: [".mp3", ".acm", ".mp4"]
-                    }
-                }
-                RowLayout{
                     anchors.right: parent.right
                     QQC.Button{
                         id: okBtn
@@ -125,7 +107,7 @@ Item{
                         MouseArea{
                             anchors.fill: parent;
                             onClicked: {
-                               saveFileName =  folderPath.text + "/" + nameField.text + comboBox.currentText
+                               saveFileName =  folderPath.text + "/" + nameField.text +".jpg";
                                console.log("saveFileDialog" + saveFileName);
                                accepted();
                             }
@@ -158,4 +140,5 @@ Item{
         modality: Qt.ApplicationModal
     }
 }
+
 

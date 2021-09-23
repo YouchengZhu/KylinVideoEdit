@@ -1,33 +1,35 @@
 #include "videoedit.h"
 #include <unistd.h>
 #include <QFile>
+#include <sys/wait.h>
 
 extern "C" {
 #include <libavutil/timestamp.h>
 #include <libavformat/avformat.h>
 }
 
-int VideoEdit::videoIntercept(QString inputFilePath,QString outputFilePath,const double startTime, const double endTime)
+int VideoEdit::videoIntercept(QString inputFilePath,const double startTime, const double endTime)
 {
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
-    outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
+    cmd = "ffmpeg -ss " + QString::number(startTime, 10, 4) + " -t " + QString::number(endTime - startTime, 10, 4) +
+            " -i " + inputFilePath + " -c:v libx264 -c:a aac -strict experimental -b:a 98k ./新视频1.mp4 -y";
 
-    //先将视频转换为全部为关键帧的视频
-    cmd = "ffmpeg -i " + inputFilePath + " -strict -2 -qscale 0 -input " + "./intercept.mp4";
-    process(cmd);
+    char* ch;
+    QByteArray ba = cmd.toLatin1(); // must
+    ch=ba.data();
+    QProcess *process = new QProcess;
+    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(domove(int, QProcess::ExitStatus)));
+    qDebug()<<"cmd is "<< cmd;
+    if(process-> state() != process->NotRunning)
+    {
+        process->waitForFinished();
+    }
 
-    cmd = "ffmpeg -ss " +  QString::number(startTime,10,4) + " -i " + inputFilePath  + " -t " + QString::number(endTime - startTime,10,4) + " -c copy  "+ outputFilePath  + " -y";
-    process(cmd);
-
-    cmd = "rm ./intercept.mp4";
-    process(cmd);
-
-//    cmd = "mv ./新视频1.mp4 ./新视频.mp4";
-//    qDebug()<<cmd;
-//    process(cmd);
+    process->start(cmd);
 
     return 0;
 }
+
 
 int VideoEdit::videoMerge(QList<QString> fileList)
 {
@@ -102,32 +104,64 @@ int VideoEdit::videoMerge(QList<QString> fileList)
 
 
     cmd = "ffmpeg -f concat -safe 0 -i ./in.txt -c copy  ./新视频1.mp4 -y" ;
-    process(cmd);
+    char* ch;
+    QByteArray ba = cmd.toLatin1(); // must
+    ch=ba.data();
+    QProcess *process = new QProcess;
+    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(domove(int, QProcess::ExitStatus)));
+    qDebug()<<"cmd is "<< cmd;
+    if(process-> state() != process->NotRunning)
+    {
+        process->waitForFinished();
+    }
 
-//    cmd = "mv ./新视频1.mp4 ./新视频.mp4";
-////    process(cmd);
-//    QProcess::execute(cmd);
+    process->start(cmd);
+
     return 0;
 }
 
-
-int VideoEdit::videoAddBackgroundMusic(QString inputVideoFilePath, QString inputAudioFilePath, double duration, QString outputFilePath)
+int VideoEdit::videoAddBackgroundMusic(QString inputVideoFilePath, QString inputAudioFilePath, double duration)
 {
     inputVideoFilePath = inputVideoFilePath.right(inputVideoFilePath.length() - 7);
     inputAudioFilePath = inputAudioFilePath.right(inputAudioFilePath.length() - 7);
-    outputFilePath = outputFilePath.right(outputFilePath.length() - 7);
 
-    cmd = "ffmpeg -an -i " + inputVideoFilePath + " -stream_loop -1 -i " + inputAudioFilePath + " -t " + QString::number(duration,10,4) + " -y " + outputFilePath;
-    process(cmd);
+    cmd = "ffmpeg -an -i " + inputVideoFilePath + " -stream_loop -1 -i " + inputAudioFilePath + " -t " + QString::number(duration,10,4) + " ./新视频1.mp4 -y ";
+
+    char* ch;
+    QByteArray ba = cmd.toLatin1(); // must
+    ch=ba.data();
+    QProcess *process = new QProcess;
+    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(domove(int, QProcess::ExitStatus)));
+    qDebug()<<"cmd is "<< cmd;
+    if(process-> state() != process->NotRunning)
+    {
+        process->waitForFinished();
+    }
+
+    process->start(cmd);
+
     return 0;
 }
 
-int VideoEdit::addBackGroundMusic(QString inputVideoFilePath, QString inputMusicFilePath,QString outputFilePath)
+int VideoEdit::addBackGroundMusic(QString inputVideoFilePath, QString inputAudioFilePath)
 {
-    cmd = "ffmpeg -i " + inputVideoFilePath.right(inputVideoFilePath.length()-7) + " -i " + inputMusicFilePath.right(inputMusicFilePath.length()-7) +
-            " -filter_complex amix=inputs=2:duration=first:dropout_transition=2 " + outputFilePath.right(outputFilePath.length()-7);
+    cmd = "ffmpeg -i " + inputVideoFilePath.right(inputVideoFilePath.length()-7) + " -i " + inputAudioFilePath.right(inputAudioFilePath.length()-7) +
+            " -filter_complex amix=inputs=2:duration=first:dropout_transition=2  ./新视频1.mp4 -y";
 
-    process(cmd);
+    char* ch;
+    QByteArray ba = cmd.toLatin1(); // must
+    ch=ba.data();
+    QProcess *process = new QProcess;
+    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(domove(int, QProcess::ExitStatus)));
+    qDebug()<<"cmd is "<< cmd;
+    if(process-> state() != process->NotRunning)
+    {
+        process->waitForFinished();
+    }
+
+    process->start(cmd);
+
+    return 0;
 
     return 0;
 
@@ -142,18 +176,30 @@ int VideoEdit::screenshot(QString inputFilePath, double startTime, QString outpu
     process(cmd);
 }
 
-int VideoEdit::addWatermark(QString inputVideoFilePath, QString inputImgFilePath, double x, double y, QString outFilePath)
+int VideoEdit::addPicInPic(QString inputVideoFilePath, QString inputImgFilePath, double x, double y)
 {
     inputVideoFilePath = inputVideoFilePath.right(inputVideoFilePath.length() - 7);
     inputImgFilePath = inputImgFilePath.right(inputImgFilePath.length() - 7);
-    outFilePath = outFilePath.right(outFilePath.length() - 7);
 
     cmd = "ffmpeg -i " + inputImgFilePath + " -vf scale=100:-1" + " /root/tmp.jpg";
     process(cmd);
-    cmd = "ffmpeg -i " + inputVideoFilePath + " -i " + "/root/tmp.jpg" + " -filter_complex overlay=" + QString::number(x,10,4) + ":" + QString::number(y,10,4) + " -y " + outFilePath;
-    process(cmd);
-    cmd = "rm /root/tmp.jpg";
-    process(cmd);
+    cmd = "ffmpeg -i " + inputVideoFilePath + " -i " + "/root/tmp.jpg" + " -filter_complex overlay=" + QString::number(x,10,4) + ":" + QString::number(y,10,4) + " ./新视频1.mp4 -y ";
+
+//    cmd = "rm /root/tmp.jpg";
+//    process(cmd);
+
+    char* ch;
+    QByteArray ba = cmd.toLatin1(); // must
+    ch=ba.data();
+    QProcess *process = new QProcess;
+    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(domove(int, QProcess::ExitStatus)));
+    qDebug()<<"cmd is "<< cmd;
+    if(process-> state() != process->NotRunning)
+    {
+        process->waitForFinished();
+    }
+
+    process->start(cmd);
 
     return 0;
 }
@@ -181,6 +227,25 @@ int VideoEdit::videoSplit(QString inputFilePath, QString outputFilePath1, QStrin
     return 0;
 }
 
+void VideoEdit::finishFile(QString outputFilePath)
+{
+    outputFilePath = outputFilePath.right(outputFilePath.length()-7);
+    QString type = outputFilePath.right(3);
+    QString cmd;
+
+    if(type == "mp3"){
+        cmd = "cp ./新音频.mp3  "  + outputFilePath;
+        qDebug()<<cmd;
+    }
+
+    if(type == "mp4"){
+        cmd = "cp ./新视频.mp4 " + outputFilePath;
+        qDebug()<<cmd;
+    }
+
+    process(cmd);
+}
+
 void VideoEdit::process(QString command)
 {
     QProcess *process = new QProcess;
@@ -191,4 +256,15 @@ void VideoEdit::process(QString command)
     }
 
     process->start(command);
+}
+
+
+void VideoEdit::domove(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    qDebug()<< "connect success";
+    sleep(1);
+    QProcess* process = new QProcess;
+    cmd = "mv ./新视频1.mp4  ./新视频.mp4";
+    process->start(cmd);
+    process->waitForFinished(-1);
 }

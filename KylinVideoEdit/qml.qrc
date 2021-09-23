@@ -41,5 +41,7 @@
         <file>PicInPic/3.gif</file>
         <file>PicInPic/2.gif</file>
         <file>PicInPic/1.gif</file>
+        <file>MySplitDialog.qml</file>
+        <file>MyScreenShotDialog.qml</file>
     </qresource>
 </RCC>

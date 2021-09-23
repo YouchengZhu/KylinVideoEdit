@@ -10,53 +10,58 @@ class VideoEdit:public QObject
 {
     Q_OBJECT
 public slots:
+    int videoIntercept(QString inputFilePath,const double startTime, const double endTime);
     //视频剪辑
-    //in_filename: input video's path.
-    //out_filename: the video's path after intercept.
-    //start_time: the start time of intercept.
-    //end_time: the end time of intercept.
-    int videoIntercept(QString inputFilePath,QString outputFilePath,const double startTime, const double endTime);
+    //inputFilePath: 导入视频文件路径
+    //startTime:开始裁剪时间
+    //endTime:结束裁剪时间
 
-    //视频合并
     int videoMerge(QList<QString> filelist);
+    //视频合并
+    //filelist:合并视频文件列表
 
-    //添加背景音乐
-    //file1: input video file path.
-    //file2: input photo file path.
-    //duration: video's duration.
-    //file3: output file path;
-    int videoAddBackgroundMusic(QString inputVideoFilePath, QString inputAudioFilePath, double duration, QString outputFilePath);
+    int videoAddBackgroundMusic(QString inputVideoFilePath, QString inputAudioFilePath, double duration);
+    //添加背景音乐（去除视频原音）
+    //inputVideoFilePath:视频文件路径
+    //inputAudioFilePath:音频文件路径
+    //duration:视频总时长
 
-
-    int addBackGroundMusic(QString inputVideoFilePath,QString inputMusicFilePath,QString outputFilePath);
+    int addBackGroundMusic(QString inputVideoFilePath,QString inputAudioFilePath);
     //给视频添加背景音乐，不改变视频原来的音频
-    //参数1：导入的视频资源文件
-    //参数2：导入的音频资源文件
-    //参数3：输出的文件路径
+    //inputVideoFilePath：视频文件路径
+    //inputAudioFilePath:音频文件路径
 
-    //截图
-    //filepath1: input video file path.
-    //start_time: the screenshot's time.
-    //filepath2: the path that save the screenshot.
     int screenshot(QString inputFilePath, double startTime, QString outputFilePath);
+    //截图
+    //inputFilePath:视频文件路径
+    //startTime:截图时间点
+    //outputFilePath:截图文件保存路径
 
-    //添加水印
-    //filepath1: input video's filepath;
-    //filepath2: input watermark's filepath;
-    //x,y: the position of watermark.
-    //filepath3: output file path after add watermark.
-    int addWatermark(QString inputVideoFilePath, QString inputImgFilePath, double x, double y, QString outFilePath);
+    int addPicInPic(QString inputVideoFilePath, QString inputImgFilePath, double x, double y);
+    //添加画中画
+    //inputVideoFilePath:导入视频文件路径
+    //inputImageFilePath:导入图片文件路径
+    //x:画中画横坐标
+    //y:画中画纵坐标
 
-    //视频拆分
-    //filepath1: input video's path;
-    //filepath2: ourtput video1's path after split.
-    //filepath3: output video2's path after split.
-    //split_time: split time.
     int videoSplit(QString inputFilePath, QString outputFilePath1, QString outputFilePath2, double splitTime, double duration);
+    //视频拆分
+    //inputFilePath:导入视频文件路径
+    //outputFilePath1:输出视频文件路径1
+    //outputFilePath2:输出视频文件路径2
+    //splitTime:拆分时间点
+    //duration:视频总时长
 
-    //执行命
-    //command: the command that needs process.
+    void finishFile(QString outputFilePath);
+    //完成视频，导出最后的视频文件
+    //outputFilePath:导出视频文件路i经
+
     void process(QString command);
+    //执行命令行
+    //command: 命令
+
+    void domove(int exitCode, QProcess::ExitStatus exitStatus);
+    //操纵中间文件
 private:
     QString cmd;
 };

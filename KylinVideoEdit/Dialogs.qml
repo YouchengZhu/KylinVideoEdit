@@ -169,4 +169,20 @@ Item {
         modality: Qt.ApplicationModal
         selectMultiple: true
     }
+
+    //10.视频拆分对话框
+    property alias videoSplitDialog: videoSplitDialog;
+    MySplitDialog{
+        id: videoSplitDialog;
+    }
+    //11.音频拆分对话框
+    property alias audioSplitDialog: audioSplitDialog;
+    MySplitDialog{
+        id: audioSplitDialog
+    }
+    //12.截屏对话框
+    property alias screenShotDialog: screenShotDialog
+    MyScreenShotDialog{
+        id: screenShotDialog;
+    }
 }

@@ -6,13 +6,15 @@ import QtQuick.Controls 2.0 as QQC
 Item{
     property alias saveDialog: saveDialog
     property alias folderDialog: folderDialog
-    property var saveFileName
-    property alias filter: comboBox.model
+    property var saveFileName1
+    property var saveFileName2
     signal accepted;
-
     function open()
     {
         saveDialog.open();
+    }
+    function close(){
+        saveDialog.close();
     }
     QQD.Dialog{
         id: saveDialog;
@@ -68,16 +70,16 @@ Item{
                     width: parent.width;
                     spacing: 10
                     QQC.Label{
-                        id: nameLabel
-                        text: qsTr("名称");
+                        id: nameLabel1
+                        text: qsTr("文件名1");
                         width: 100
                         height: 60
                         font.pixelSize: 20
                         anchors.verticalCenter: parent.verticalCenter;
                     }
                     QQC.TextField{
-                        id: nameField
-                        anchors.left: nameLabel.right;
+                        id: nameField1
+                        anchors.left: nameLabel1.right;
                         anchors.right: parent.right
                         anchors.leftMargin: 10
                         placeholderText: qsTr("请输入文件名")
@@ -100,20 +102,32 @@ Item{
                     width: parent.width;
                     spacing: 10
                     QQC.Label{
-                        id: filterLabel
+                        id: nameLabel2
+                        text: qsTr("文件名2");
                         width: 100
                         height: 60
-                        text: qsTr("过滤");
                         font.pixelSize: 20
                         anchors.verticalCenter: parent.verticalCenter;
                     }
-                    QQC.ComboBox{
-                        id: comboBox
-                        anchors.left: filterLabel.right
+                    QQC.TextField{
+                        id: nameField2
+                        anchors.left: nameLabel2.right;
+                        anchors.right: parent.right
                         anchors.leftMargin: 10
-                        anchors.right: parent.right;
+                        placeholderText: qsTr("请输入文件名")
+                        width: parent.width;
                         height: 60
-                        model: [".mp3", ".acm", ".mp4"]
+                        wrapMode: Text.WordWrap
+                        cursorVisible: true
+                        font.family: "Arial"
+                        font.weight: Font.Thin
+                        font.pixelSize: 17
+                        selectByMouse: true
+                        background: Rectangle{
+                            border.width: 0.7
+                            border.color: "#B2B2B2"
+                            opacity: 0.5
+                        }
                     }
                 }
                 RowLayout{
@@ -125,8 +139,10 @@ Item{
                         MouseArea{
                             anchors.fill: parent;
                             onClicked: {
-                               saveFileName =  folderPath.text + "/" + nameField.text + comboBox.currentText
-                               console.log("saveFileDialog" + saveFileName);
+                               saveFileName1 =  folderPath.text + "/" + nameField1.text;
+                               saveFileName2 =  folderPath.text + "/" + nameField2.text;
+                               console.log("saveFileDialog" + saveFileName1);
+                               console.log("saveFileDialog" + saveFileName2);
                                accepted();
                             }
                         }
