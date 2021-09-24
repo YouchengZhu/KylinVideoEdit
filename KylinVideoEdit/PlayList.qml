@@ -139,6 +139,17 @@ Item {
                                 videoPlayWindow.picInPicWindow.visible = true;
                             }else{
                                 videoPlayWindow.picInPicWindow.visible = false;
+                                //-------不出现在目标视频文件中
+                                videoPlayWindow.picInPicWindow.visible = false;
+                                videoPlayWindow.picInPicWindow.leftTopMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.topMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.rightTopMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.centerMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.leftMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.rightMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.leftBottomMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.bottomMouse.enabled = true;
+                                videoPlayWindow.picInPicWindow.rightBottomMouse.enabled = true;
                             }
                         }else if(currentPlayWindow === audioPlayWindow)//点击列表项为音频
                         {

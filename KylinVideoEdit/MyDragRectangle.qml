@@ -16,6 +16,16 @@ Rectangle
     readonly property int minWidth: 64
     readonly property int minHeight: 64
 
+    property alias leftTopMouse: leftTopMouse
+    property alias topMouse: topMouse;
+    property alias rightTopMouse: rightTopMouse;
+    property alias centerMouse: centerMouse
+    property alias leftMouse: leftMouse;
+    property alias rightMouse: rightMouse
+    property alias leftBottomMouse: leftBottomMouse;
+    property alias bottomMouse: bottomMouse
+    property alias rightBottomMouse: rightBottomMouse;
+
     AnimatedImage{
         id: pic;
         anchors.fill: parent;
@@ -53,6 +63,9 @@ Rectangle
         text: qsTr("确认")
         //生成添加画中画的视频文件 且画中画的位置不能随意拖动
         onTriggered: {
+            //清除画中画
+            dialogs.addPicInPicDialog.targetVideoIndex = -1
+            videoPlayWindow.picInPicWindow.visible = false;
             confirm();//发送确认信号（表示确认添加画中画的操作）
             console.log("okAction")
             leftTopMouse.enabled = false
