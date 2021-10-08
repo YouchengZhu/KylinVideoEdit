@@ -20,13 +20,13 @@ public slots:
     //视频合并
     //filelist:合并视频文件列表
 
-    int videoAddBackgroundMusic(QString inputVideoFilePath, QString inputAudioFilePath, double duration);
+    int addBackgroundMusic_1(QString inputVideoFilePath, QString inputAudioFilePath, double duration);
     //添加背景音乐（去除视频原音）
     //inputVideoFilePath:视频文件路径
     //inputAudioFilePath:音频文件路径
     //duration:视频总时长
 
-    int addBackGroundMusic(QString inputVideoFilePath,QString inputAudioFilePath);
+    int addBackGroundMusic_2(QString inputVideoFilePath,QString inputAudioFilePath);
     //给视频添加背景音乐，不改变视频原来的音频
     //inputVideoFilePath：视频文件路径
     //inputAudioFilePath:音频文件路径
@@ -52,9 +52,13 @@ public slots:
     //splitTime:拆分时间点
     //duration:视频总时长
 
+
     void finishFile(QString outputFilePath);
     //完成视频，导出最后的视频文件
     //outputFilePath:导出视频文件路i经
+
+    void clearVideoFiles();
+    //当用户关闭界面后处理所有产生的中间文件
 
     void process(QString command);
     //执行命令行

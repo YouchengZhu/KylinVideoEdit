@@ -11,7 +11,7 @@ Item {
     property var  checkBoxState : true
 
     //确认信号操作（点击确认按钮确定添加背景音乐）
-    signal confirm()
+    signal accepted()
 
     function open()
     {
@@ -136,7 +136,7 @@ Item {
                 anchors.left: parent.left;
                 anchors.leftMargin: 10
                 onClicked:{
-                    confirm();//发送信号确认进行添加背景音乐的操作
+                    accepted();//发送信号确认进行添加背景音乐的操作
                 }
                 font.family: "Arial"
                 font.weight: Font.Thin

@@ -3,7 +3,7 @@ import QtQuick.Controls 2.5
 Rectangle
 {
     //确认信号（按下确认按钮发送，表示进行添加画中画的操作）
-    signal confirm();
+    signal accepted();
 
     property alias selectPicSource: pic.source;
     property var dragBackground: dragBackground;//父组件
@@ -66,7 +66,7 @@ Rectangle
             //清除画中画
             dialogs.addPicInPicDialog.targetVideoIndex = -1
             videoPlayWindow.picInPicWindow.visible = false;
-            confirm();//发送确认信号（表示确认添加画中画的操作）
+            accepted();//发送确认信号（表示确认添加画中画的操作）
             console.log("okAction")
             leftTopMouse.enabled = false
             topMouse.enabled = false;

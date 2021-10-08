@@ -4,7 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Dialogs 1.2 as QQD
 
 Item {
-    signal sendPic(var path);//点击确认按钮发送信号，传递图片文件路径
+    signal accepted(var path);//点击确认按钮发送信号，传递图片文件路径
 
     //--------------------
     property var targetVideoIndex //记录选择画中画的视频索引
@@ -146,7 +146,7 @@ Item {
                 anchors.leftMargin: 10
                 onClicked:{
                     picInPicDialog.close()
-                    sendPic(finalPic)//传递当前图片文件的路径
+                    accepted(finalPic)//传递当前图片文件的路径
                 }
                 font.family: "Arial"
                 font.weight: Font.Thin

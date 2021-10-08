@@ -32,7 +32,7 @@ Item {
     }
     function selectFiles(fileNames)
     {
-        currentPlayWindow.playlists.clear();
+        //currentPlayWindow.playlists.clear();
         for(var i = 0; i < fileNames.length; i++)
         {
             currentPlayWindow.playlists.addItem(fileNames[i])
@@ -65,7 +65,7 @@ Item {
         console.log("@@@不是目标视频索引")
         return false;
     }
-    //转换文件路径名
+    //函数四：转换文件路径名
     function convertFileName(source)
     {
         var pos = JSON.stringify(source).lastIndexOf('/');
@@ -73,6 +73,45 @@ Item {
         var finalName = name.substr(0, name.length - 1);
         return finalName;
     }
+
+    //函数五:对数组进行逆序
+    function reverse(arr){
+        var temp;
+        for(var i=0;i < arr.length/2;i++){
+        temp=arr[i];
+        arr[i]=arr[arr.length-1-i];
+        arr[arr.length-1-i]=temp;
+        }
+        return arr;
+    }
+
+
+    //函数六：数组去重
+    function unique(arr) {
+        return Array.from(new Set(arr))
+    }
+
+    //函数七：对合并数组进行检查
+    function check(arr)
+    {
+        var tmp = []
+        for (var i = 0;i < sum.length;i++)
+        {
+            if (sum[i] % 2 !== 0) tmp.push(i)
+        }
+
+        var finalArr = []
+
+        for (var i = 0;i < arr.length;i++)
+        {
+            for (var j = 0;j < tmp.length;j++)
+            {
+                if(arr[i] === tmp[j]) finalArr.push(arr[i])
+            }
+        }
+        return finalArr;
+    }
+
     Rectangle{
         anchors.fill: parent
         color: "#F7F7F7"

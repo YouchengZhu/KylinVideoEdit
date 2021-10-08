@@ -1,11 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Window 2.0
+import QtQuick.Window 2.15
 import VideoEdit 1.0
 import AudioEdit 1.0
-
 import QtQml 2.15
-
 
 Window {
     property var inputFilepaths: []
@@ -56,10 +54,12 @@ Window {
             }
         }
     }
+
     FileDrawer{
         id: drawer
         height: parent.height
     }
+
     Dialogs{
         id: dialogs
         //1.视频文件对话框
@@ -77,6 +77,7 @@ Window {
 
             //3.画中画清除
             dialogs.addPicInPicDialog.targetVideoIndex = -1;
+
         }
         //2.音频文件对话框
         audioFileDialog.onAccepted: {
@@ -106,23 +107,20 @@ Window {
             musicFile = dialogs.musicSelectDialog.fileUrl//获取背景音乐的文件路径
         }
 
-        //信号绑定
-        Connections{
-            target:dialogs.addBackgroundMusicDialog
-            onConfirm:{
-                if(dialogs.addBackgroundMusicDialog.checkBoxState){//添加背景音乐，去除视频原声
-                    videoEdit.videoAddBackgroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile,videoPlayWindow.mediaPlayer.duration / 1000)
+        //选择背景音乐窗口
+        addBackgroundMusicDialog.onAccepted: {
+            if(dialogs.addBackgroundMusicDialog.checkBoxState){//添加背景音乐，去除视频原声
+                videoEdit.addBackgroundMusic_1(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile,videoPlayWindow.mediaPlayer.duration / 1000)
 
-                    videoPlayWindow.mediaPlayer.playlist.clear()
-                    videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")
-                    dialogs.addBackgroundMusicDialog.close()
-                }else{
-                    //添加背景音乐，不去除视频原音
-                    videoEdit.addBackGroundMusic(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile)
-                    videoPlayWindow.mediaPlayer.playlist.clear()
-                    videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")
-                    dialogs.addBackgroundMusicDialog.close()
-                }
+                videoPlayWindow.mediaPlayer.playlist.clear()
+                videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")
+                dialogs.addBackgroundMusicDialog.close()
+            }else{
+                //添加背景音乐，不去除视频原音
+                videoEdit.addBackGroundMusic_2(videoPlayWindow.mediaPlayer.playlist.currentItemSource, musicFile)
+                videoPlayWindow.mediaPlayer.playlist.clear()
+                videoPlayWindow.mediaPlayer.playlist.addItem("file://" + appPath + "/新视频.mp4")
+                dialogs.addBackgroundMusicDialog.close()
             }
         }
 
@@ -147,7 +145,6 @@ Window {
                 dialogs.addPicInPicDialog.fileNames.push(dialogs.picInPicSelectDialog.fileUrls[i])
             }
             dialogs.addPicInPicDialog.displayImageByGrid()
-            //(修改)
             console.log("videoPlayWindow.playlists.currentIndex"+videoPlayWindow.playlists.currentIndex)
             addPicInPicDialog.targetVideoIndex = videoPlayWindow.playlists.currentIndex//当前列表项为画中画显示列表
             console.log("addPicInPicDialog.targetVideoIndex"+ addPicInPicDialog.targetVideoIndex)
@@ -314,6 +311,11 @@ Window {
             //用户只选择了视频资源文件
             if(videoPlayList.isHasChecked() && !audioPlayList.isChecked())
             {
+                videoPlayList.chosedSource = videoPlayList.reverse(videoPlayList.chosedSource);
+                videoPlayList.chosedSource =  videoPlayList.unique(videoPlayList.chosedSource);
+                videoPlayList.chosedSource = videoPlayList.reverse(videoPlayList.chosedSource);
+                videoPlayList.chosedSource = videoPlayList.check(videoPlayList.chosedSource)
+
                 var fileNames = dialogs.videoFileDialog.fileUrls
 
                 for (var i = 0; i < videoPlayList.chosedSource.length;i++)
@@ -329,6 +331,11 @@ Window {
             //用户只选择了音频资源文件
             if(audioPlayList.isHasChecked() && !videoPlayList.isChecked())
             {
+                audioPlayList.chosedSource = audioPlayList.reverse(audioPlayList.chosedSource);
+                audioPlayList.chosedSource =  audioPlayList.unique(audioPlayList.chosedSource);
+                audioPlayList.chosedSource = audioPlayList.reverse(audioPlayList.chosedSource);
+                audioPlayList.chosedSource =  audioPlayList.check(audioPlayList.chosedSource)
+
                 var fileNames = dialogs.audioFileDialog.fileUrls
 
                 for (var i = 0; i < audioPlayList.chosedSource.length;i++)
@@ -473,14 +480,15 @@ Window {
 
         Connections{
             target: dialogs.addPicInPicDialog
-            onSendPic:{
+            onAccepted:{
                 picFile = path//获取画中画图片文件的路径
+                console.log(picFile)
             }
         }
 
         Connections{
             target: videoPlayWindow.picInPicWindow
-            onConfirm:{
+            onAccepted:{
                 videoEdit.addPicInPic(videoPlayWindow.mediaPlayer.playlist.currentItemSource,picFile,videoPlayWindow.picInPicWindow.x,videoPlayWindow.picInPicWindow.y)//进行添加画中画的操作
 
                 videoPlayWindow.mediaPlayer.playlist.clear()
@@ -507,6 +515,11 @@ Window {
                 dialogs.screenShotDialog.open();
             }
         }
+    }
+
+    onClosing:{
+        videoEdit.clearVideoFiles();
+        audioEdit.clearAudioFiles();
     }
 
     VideoEdit

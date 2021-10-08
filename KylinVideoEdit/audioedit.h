@@ -28,6 +28,9 @@ public slots:
     //startTime:开始裁剪时间点
     //endTime:结束裁剪时间点
 
+    void clearAudioFiles();
+    //清理所有产生的音频中间文件
+
     void process(QString command);
 
     void domove(int exitCode, QProcess::ExitStatus exitStatus);

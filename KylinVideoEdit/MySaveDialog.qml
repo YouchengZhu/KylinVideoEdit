@@ -113,7 +113,7 @@ Item{
                         anchors.leftMargin: 10
                         anchors.right: parent.right;
                         height: 60
-                        model: [".mp3", ".acm", ".mp4"]
+                        model: [".mp3", ".acm", ".mp4",".avi",".ts",".flv"]
                     }
                 }
                 RowLayout{

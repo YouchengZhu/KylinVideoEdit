@@ -76,6 +76,14 @@ int AudioEdit::audioIntercept(QString inputFilePath,const double startTime, cons
     return 0;
 }
 
+void AudioEdit::clearAudioFiles()
+{
+    QString cmd;
+    cmd = "rm ./新音频.mp3";
+    process(cmd);
+
+}
+
 
 void AudioEdit::process(QString command)
 {
