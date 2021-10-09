@@ -15,6 +15,8 @@ Item {
     property var currentPlayWindow;//当前列表对应播放窗口
     signal click();//列表数据项点击激发信号
 
+
+    //property alias box: view.box
     //函数一: 判断当前列表项中是否有不少于两个列表项被点击
     function isHasChecked()
     {
@@ -33,6 +35,15 @@ Item {
     function selectFiles(fileNames)
     {
         //currentPlayWindow.playlists.clear();
+        for(var i = 0; i < fileNames.length; i++)
+        {
+            currentPlayWindow.playlists.addItem(fileNames[i])
+        }
+    }
+
+    function selectBgmFiles(fileNames)
+    {
+        currentPlayWindow.playlists.clear();
         for(var i = 0; i < fileNames.length; i++)
         {
             currentPlayWindow.playlists.addItem(fileNames[i])
@@ -59,10 +70,10 @@ Item {
     {
         if(videoPlayWindow.playlists.currentIndex === targetVideoIndex)
         {
-            console.log("@@@是目标视频索引")
+
             return true;
         }
-        console.log("@@@不是目标视频索引")
+
         return false;
     }
     //函数四：转换文件路径名
@@ -155,12 +166,24 @@ Item {
                         font.family: "Arial"
                         font.weight: Font.Thin
                     }
+                    Connections{
+                        target: dialogs.videoFileDialog
+                        onAccepted: {
+                            box.checked = false
+                        }
+                    }
+                    Connections{
+                        target: dialogs.audioFileDialog
+                        onAccepted: {
+                            box.checked = false
+                        }
+                    }
+
                 }
                 MouseArea{
                     anchors.fill: parent
                     hoverEnabled: true
                     onPressed: {
-                        console.log(source)
                         //1.当前列表项为点击列表项
                         currentPlayWindow.playlists.currentIndex = index
                         //点击列表项为视频
@@ -172,7 +195,6 @@ Item {
                             //2.将音频暂停
                             pauseAudio();
                             //---------点击列表项切换 画中画
-                            console.log("@@@@切换后：dialogs.addPicInPicDialog.targetVideoIndex " + dialogs.addPicInPicDialog.targetVideoIndex)
                             if(isTargetVideoIndex(dialogs.addPicInPicDialog.targetVideoIndex))
                             {
                                 videoPlayWindow.picInPicWindow.visible = true;
@@ -221,7 +243,6 @@ Item {
                         sum[view.currentIndex]++;//当前列表项点击数++
                         //记录点击顺序
                         if(sum[view.currentIndex] % 2 != 0) {
-                            console.log(view.currentIndex)
                             chosedSource.push(view.currentIndex)
                         }
                     }

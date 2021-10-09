@@ -33,7 +33,6 @@ Rectangle
             acceptedButtons: Qt.RightButton
             anchors.fill: parent;
             onClicked: {
-                console.log("click picInPic")
                 contextMenu.x = mouse.x;
                 contextMenu.y = mouse.y;
                 contextMenu.open()
@@ -54,7 +53,6 @@ Rectangle
         id: deleteAction;
         text: qsTr("删除")
         onTriggered: {
-            console.log("deleteAction")
             resizeRectangle.visible = false;
         }
     }
@@ -67,7 +65,6 @@ Rectangle
             dialogs.addPicInPicDialog.targetVideoIndex = -1
             videoPlayWindow.picInPicWindow.visible = false;
             accepted();//发送确认信号（表示确认添加画中画的操作）
-            console.log("okAction")
             leftTopMouse.enabled = false
             topMouse.enabled = false;
             rightTopMouse.enabled = false;

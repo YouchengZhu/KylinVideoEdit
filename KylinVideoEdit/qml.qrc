@@ -33,14 +33,6 @@
         <file>BgmPlayWindow.qml</file>
         <file>MyDragRectangle.qml</file>
         <file>MyPicInPicDialog.qml</file>
-        <file>PicInPic/8.jpg</file>
-        <file>PicInPic/7.jpg</file>
-        <file>PicInPic/6.png</file>
-        <file>PicInPic/5.gif</file>
-        <file>PicInPic/4.gif</file>
-        <file>PicInPic/3.gif</file>
-        <file>PicInPic/2.gif</file>
-        <file>PicInPic/1.gif</file>
         <file>MySplitDialog.qml</file>
         <file>MyScreenShotDialog.qml</file>
     </qresource>

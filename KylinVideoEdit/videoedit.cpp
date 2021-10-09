@@ -11,6 +11,8 @@ extern "C" {
 //视频裁剪
 int VideoEdit::videoIntercept(QString inputFilePath,const double startTime, const double endTime)
 {
+    emit start();//发送开始执行的信号
+    qDebug() << "正在进行裁剪";
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
     cmd = "ffmpeg -ss " + QString::number(startTime, 10, 4) + " -t " + QString::number(endTime - startTime, 10, 4) +
             " -i " + inputFilePath + " -c:v libx264 -c:a aac -strict experimental -b:a 98k ./新视频1.mp4 -y";
@@ -34,6 +36,8 @@ int VideoEdit::videoIntercept(QString inputFilePath,const double startTime, cons
 //视频合并
 int VideoEdit::videoMerge(QList<QString> fileList)
 {
+    emit start();//发送开始执行的信号
+    qDebug() << "正在进行合并";
     //处理导入文件的路径
     QList<QString> filelist;
     for(int i = 0; i < fileList.length(); i++)
@@ -124,6 +128,8 @@ int VideoEdit::videoMerge(QList<QString> fileList)
 //添加背景音乐（去除视频原音）
 int VideoEdit::addBackgroundMusic_1(QString inputVideoFilePath, QString inputAudioFilePath, double duration)
 {
+    emit start();//发送开始执行的信号
+    qDebug() << "正在添加背景音乐（去除视频原音）";
     inputVideoFilePath = inputVideoFilePath.right(inputVideoFilePath.length() - 7);
     inputAudioFilePath = inputAudioFilePath.right(inputAudioFilePath.length() - 7);
 
@@ -148,6 +154,8 @@ int VideoEdit::addBackgroundMusic_1(QString inputVideoFilePath, QString inputAud
 //添加背景音乐（不去除视频原音）
 int VideoEdit::addBackGroundMusic_2(QString inputVideoFilePath, QString inputAudioFilePath)
 {
+    emit start();//发送开始执行的信号
+    qDebug() << "正在添加背景音乐（不去除视频原音）";
     cmd = "ffmpeg -i " + inputVideoFilePath.right(inputVideoFilePath.length()-7) + " -i " + inputAudioFilePath.right(inputAudioFilePath.length()-7) +
             " -filter_complex amix=inputs=2:duration=first:dropout_transition=2  ./新视频1.mp4 -y";
 
@@ -180,10 +188,13 @@ int VideoEdit::screenshot(QString inputFilePath, double startTime, QString outpu
 
 int VideoEdit::addPicInPic(QString inputVideoFilePath, QString inputImgFilePath, double x, double y)
 {
+    emit start();//发送开始执行的信号
+    qDebug() << "正在添加画中画";
+
     inputVideoFilePath = inputVideoFilePath.right(inputVideoFilePath.length() - 7);
     inputImgFilePath = inputImgFilePath.right(inputImgFilePath.length() - 7);
 
-    cmd = "ffmpeg -i " + inputImgFilePath + " -vf scale=100:-1" + " ./tmp.jpg";
+    cmd = "ffmpeg -i " + inputImgFilePath + " -vf scale=100:-1" + " ./tmp.jpg -y";
     process(cmd);
     cmd = "ffmpeg -i " + inputVideoFilePath + " -i " + "./tmp.jpg" + " -filter_complex overlay=" + QString::number(x,10,4) + ":" + QString::number(y,10,4) + " ./新视频1.mp4 -y ";
 
@@ -244,9 +255,9 @@ void VideoEdit::finishFile(QString outputFilePath)
         cmd = "cp ./新视频.mp4 " + outputFilePath;
         qDebug()<<cmd;
     }else if(type == "flv"){
-        cmd = "ffmpeg -i ./新视频.mp4  -c:v libx264 -ar 22050 -crf 28" + outputFilePath;
+        cmd = "ffmpeg -i ./新视频.mp4  -c:v libx264 -ar 22050 -crf 28 " + outputFilePath;
         qDebug()<<cmd;
-    }else if(type == "ts"){
+    }else if(type == ".ts"){
         cmd = "ffmpeg -i ./新视频.mp4  " + outputFilePath;
         qDebug()<<cmd;
     }else if(type == "avi"){
@@ -265,8 +276,6 @@ void VideoEdit::clearVideoFiles()
 
     cmd = "rm ./tmp.jpg";
     process(cmd);
-
-
 }
 
 void VideoEdit::process(QString command)
@@ -290,4 +299,7 @@ void VideoEdit::domove(int exitCode, QProcess::ExitStatus exitStatus)
     cmd = "mv ./新视频1.mp4  ./新视频.mp4";
     process->start(cmd);
     process->waitForFinished(-1);
+
+    //发送执行结束的信号
+    emit finish();
 }

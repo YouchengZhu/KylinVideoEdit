@@ -165,7 +165,7 @@ Item {
         id: picInPicSelectDialog
         title: qsTr("select the picInPic files")
         folder: shortcuts.documents
-        nameFilters: ["pic files(*.png *.jpg *.gif *.svg)"]
+        nameFilters: ["pic files(*.jpg )"]
         modality: Qt.ApplicationModal
         selectMultiple: true
     }
@@ -179,6 +179,9 @@ Item {
     property alias audioSplitDialog: audioSplitDialog;
     MySplitDialog{
         id: audioSplitDialog
+        nameField1.text:qsTr("请输入文件名, 视频时间为:（00:00:00---" + currentTime(audioPlayWindow.mediaPlayer.position) + ")")
+        nameField2.text:qsTr("请输入文件名, 视频时间为:（" + currentTime(audioPlayWindow.mediaPlayer.position) + "---" + currentTime(audioPlayWindow.mediaPlayer.duration) + ")")
+
     }
     //12.截屏对话框
     property alias screenShotDialog: screenShotDialog

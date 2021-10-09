@@ -12,7 +12,7 @@ Item {
     property alias acceptBtn: acceptBtn
     property alias cancelBtn: cancelBtn
     property var finalPic;
-    property var fileNames: ["/PicInPic/1.gif", "/PicInPic/2.gif", "/PicInPic/3.gif","/PicInPic/4.gif","/PicInPic/5.gif","/PicInPic/6.png","/PicInPic/7.jpg","/PicInPic/8.jpg"]
+    property var fileNames: []
     function open()
     {
         picInPicDialog.open()
@@ -105,7 +105,6 @@ Item {
                             onTapped: {
                                 gridView.currentIndex = index;
                                 finalPic = fileNames[index]
-                                console.log("finalPic" + finalPic);
                             }
                         }
                     }

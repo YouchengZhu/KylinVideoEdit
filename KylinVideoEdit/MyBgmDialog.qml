@@ -83,7 +83,6 @@ Item {
                     anchors.fill: parent
                     currentPlayWindow: bgMusicPlayWindow
                     onPlay: {
-                        console.log("背景音乐播放")
                         bgMusicPlayWindow.mediaPlayer.play();
                     }
                 }

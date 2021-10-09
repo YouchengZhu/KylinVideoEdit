@@ -16,6 +16,12 @@ Item{
     {
         saveDialog.close()
     }
+    function converFileName(source)
+    {
+        var finalName = JSON.stringify(source).substr(8, JSON.stringify(source).length - 9)
+
+        return finalName
+    }
     QQD.Dialog{
         id: saveDialog;
         title: "save dialog"
@@ -40,7 +46,7 @@ Item{
                     anchors.leftMargin: 10
                     anchors.right: selectFolder.left;
                     anchors.rightMargin: 10;
-                    text: folderDialog.currentFolder
+                    text: converFileName(folderDialog.currentFolder)
                     background: Rectangle{
                         border.width: 0.7
                         border.color: "#B2B2B2"
@@ -107,8 +113,7 @@ Item{
                         MouseArea{
                             anchors.fill: parent;
                             onClicked: {
-                               saveFileName =  folderPath.text + "/" + nameField.text +".jpg";
-                               console.log("saveFileDialog" + saveFileName);
+                               saveFileName = "file://" + folderPath.text + "/" + nameField.text +".jpg";
                                accepted();
                             }
                         }
@@ -134,8 +139,7 @@ Item{
         rejectLabel: qsTr("取消")
         options: FolderDialog.ShowDirsOnly
         onAccepted: {
-            folderPath.text = currentFolder;
-            console.log("currentFolder" + folderPath.text)
+            folderPath.text = converFileName(currentFolder);
         }
         modality: Qt.ApplicationModal
     }

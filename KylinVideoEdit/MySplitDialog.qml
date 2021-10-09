@@ -6,6 +6,9 @@ import QtQuick.Controls 2.0 as QQC
 Item{
     property alias saveDialog: saveDialog
     property alias folderDialog: folderDialog
+    property alias nameField1: nameField1
+    property alias nameField2: nameField2
+
     property var saveFileName1
     property var saveFileName2
     signal accepted;
@@ -16,6 +19,39 @@ Item{
     function close(){
         saveDialog.close();
     }
+
+    //转换文件夹路径名 去掉"file://
+    function converFileName(source)
+    {
+        var finalName = JSON.stringify(source).substr(8, JSON.stringify(source).length - 9)
+        console.log("@@@@converFileName" + JSON.stringify(source).length)
+        console.log("@@@@converFileName" + finalName)
+        return finalName
+    }
+
+    //时间格式转换函数
+    function currentTime(time)
+    {
+        var sec= Math.floor(time/1000);
+        var hours=Math.floor(sec/3600);
+        var minutes=Math.floor((sec-hours*3600)/60);
+        var seconds=sec-hours*3600-minutes*60;
+        var hh,mm,ss;
+        if(hours.toString().length<2)
+            hh="0"+hours.toString();
+        else
+            hh=hours.toString();
+        if(minutes.toString().length<2)
+            mm="0"+minutes.toString();
+        else
+            mm=minutes.toString();
+        if(seconds.toString().length<2)
+            ss="0"+seconds.toString();
+        else
+            ss=seconds.toString();
+        return hh+":"+mm+":"+ss
+    }
+
     QQD.Dialog{
         id: saveDialog;
         title: "save dialog"
@@ -40,7 +76,7 @@ Item{
                     anchors.leftMargin: 10
                     anchors.right: selectFolder.left;
                     anchors.rightMargin: 10;
-                    text: folderDialog.currentFolder
+                    text: converFileName(folderDialog.currentFolder)
                     background: Rectangle{
                         border.width: 0.7
                         border.color: "#B2B2B2"
@@ -82,7 +118,7 @@ Item{
                         anchors.left: nameLabel1.right;
                         anchors.right: parent.right
                         anchors.leftMargin: 10
-                        placeholderText: qsTr("请输入文件名")
+                        placeholderText: qsTr("请输入文件名, 视频时间为:（00:00:00---" + currentTime(videoPlayWindow.mediaPlayer.position) + ")")
                         width: parent.width;
                         height: 60
                         wrapMode: Text.WordWrap
@@ -114,7 +150,7 @@ Item{
                         anchors.left: nameLabel2.right;
                         anchors.right: parent.right
                         anchors.leftMargin: 10
-                        placeholderText: qsTr("请输入文件名")
+                        placeholderText: qsTr("请输入文件名, 视频时间为:（" + currentTime(videoPlayWindow.mediaPlayer.position) + "---" + currentTime(videoPlayWindow.mediaPlayer.duration) + ")")
                         width: parent.width;
                         height: 60
                         wrapMode: Text.WordWrap
@@ -139,10 +175,9 @@ Item{
                         MouseArea{
                             anchors.fill: parent;
                             onClicked: {
-                               saveFileName1 =  folderPath.text + "/" + nameField1.text;
-                               saveFileName2 =  folderPath.text + "/" + nameField2.text;
-                               console.log("saveFileDialog" + saveFileName1);
-                               console.log("saveFileDialog" + saveFileName2);
+                               saveFileName1 =  "file://" + folderPath.text + "/" + nameField1.text;
+                               saveFileName2 =  "file://" + folderPath.text + "/" + nameField2.text;
+
                                accepted();
                             }
                         }
@@ -168,8 +203,8 @@ Item{
         rejectLabel: qsTr("取消")
         options: FolderDialog.ShowDirsOnly
         onAccepted: {
-            folderPath.text = currentFolder;
-            console.log("currentFolder" + folderPath.text)
+            folderPath.text = converFileName(currentFolder);
+
         }
         modality: Qt.ApplicationModal
     }

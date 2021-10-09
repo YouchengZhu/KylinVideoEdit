@@ -14,6 +14,14 @@ Item{
     {
         saveDialog.open();
     }
+    //转换文件夹路径名 去掉"file://
+    function converFileName(source)
+    {
+        var finalName = JSON.stringify(source).substr(8, JSON.stringify(source).length - 9)
+        console.log("@@@@converFileName" + JSON.stringify(source).length)
+        console.log("@@@@converFileName" + finalName)
+        return finalName
+    }
     QQD.Dialog{
         id: saveDialog;
         title: "save dialog"
@@ -38,7 +46,7 @@ Item{
                     anchors.leftMargin: 10
                     anchors.right: selectFolder.left;
                     anchors.rightMargin: 10;
-                    text: folderDialog.currentFolder
+                    text: converFileName(folderDialog.currentFolder)
                     background: Rectangle{
                         border.width: 0.7
                         border.color: "#B2B2B2"
@@ -113,7 +121,7 @@ Item{
                         anchors.leftMargin: 10
                         anchors.right: parent.right;
                         height: 60
-                        model: [".mp3", ".acm", ".mp4",".avi",".ts",".flv"]
+                        model: [".mp3", ".mp4",".avi",".ts",".flv"]
                     }
                 }
                 RowLayout{
@@ -125,8 +133,7 @@ Item{
                         MouseArea{
                             anchors.fill: parent;
                             onClicked: {
-                               saveFileName =  folderPath.text + "/" + nameField.text + comboBox.currentText
-                               console.log("saveFileDialog" + saveFileName);
+                               saveFileName =  "file://" + folderPath.text + "/" + nameField.text + comboBox.currentText
                                accepted();
                             }
                         }
@@ -152,8 +159,7 @@ Item{
         rejectLabel: qsTr("取消")
         options: FolderDialog.ShowDirsOnly
         onAccepted: {
-            folderPath.text = currentFolder;
-            console.log("currentFolder" + folderPath.text)
+            folderPath.text = converFileName(currentFolder);
         }
         modality: Qt.ApplicationModal
     }

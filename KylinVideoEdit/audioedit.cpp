@@ -22,7 +22,8 @@ int AudioEdit::audioSplit(QString inputFilePath,QString outputFilePath1,QString 
 
 int AudioEdit::audioMerge(QList<QString> filelist)
 {
-
+    emit start();//发送开始执行的信号
+    qDebug() << "正在进行音频合并";
     QFile file("inputList.txt");
     if(!file.open(QIODevice::WriteOnly|QIODevice::Text))
     {
@@ -55,6 +56,8 @@ int AudioEdit::audioMerge(QList<QString> filelist)
 
 int AudioEdit::audioIntercept(QString inputFilePath,const double startTime, const double endTime)
 {
+    emit start();//发送开始执行的信号
+    qDebug() << "正在进行音频裁剪";
     inputFilePath = inputFilePath.right(inputFilePath.length() - 7);
 
     //    QString str = "hello" + filepath1;
@@ -81,7 +84,6 @@ void AudioEdit::clearAudioFiles()
     QString cmd;
     cmd = "rm ./新音频.mp3";
     process(cmd);
-
 }
 
 
@@ -104,5 +106,8 @@ void AudioEdit::domove(int exitCode, QProcess::ExitStatus exitStatus)
     cmd = "mv ./新音频1.mp3  ./新音频.mp3";
     process->start(cmd);
     process->waitForFinished(-1);
+
+    //发送执行结束的信号
+    emit finish();
 }
 

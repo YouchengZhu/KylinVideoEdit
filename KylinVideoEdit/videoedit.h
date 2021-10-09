@@ -9,6 +9,9 @@
 class VideoEdit:public QObject
 {
     Q_OBJECT
+signals:
+    void finish();//C++调用命令行函数执行结束
+    void start();//C++调用命令行函数执行开始
 public slots:
     int videoIntercept(QString inputFilePath,const double startTime, const double endTime);
     //视频剪辑

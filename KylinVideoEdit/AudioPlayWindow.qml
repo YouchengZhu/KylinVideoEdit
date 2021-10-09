@@ -51,6 +51,15 @@ Item {
             playlist: Playlist{
                 id: playlists
             }
+            onPositionChanged: {
+                if(slider.visible === true)//播放状态
+                {
+                    curText.text = currentTime(player.position) + " / " + currentTime(player.duration)
+
+                }else{//裁剪状态
+                    curText.text = currentTime(first.value) + " / " + currentTime(second.value)
+                }
+            }
         }
         VideoOutput{
             id: videoOutput;
@@ -103,7 +112,6 @@ Item {
             first.value: player.duration / 3
             second.value: player.duration / 3 * 2
             first.onMoved: {
-                console.log(first.value)
                 player.seek(first.value)
                 curText.text = currentTime(first.value) + " / " + currentTime(second.value)
                 timer.interval = second.value - first.value
@@ -112,7 +120,6 @@ Item {
             second.onMoved: {
                 curText.text = currentTime(first.value) + " / " + currentTime(second.value)
                 player.seek(second.value)
-                console.log(second.value)
             }
         }
         Timer{ //用于选择时间段播放的定时器
@@ -131,7 +138,6 @@ Item {
             //时间显示
             Rectangle{
                 anchors.left: parent.left
-//                anchors.leftMargin: 25
                 height: 48
                 width: parent.width / 3
                 MySquareButton{
@@ -162,7 +168,6 @@ Item {
                     imgSource: "images/后退.svg"
                     onClicked:
                     {
-                        console.log("后退")
                         player.seek(player.position - 5000)
                     }
                 }
@@ -177,8 +182,6 @@ Item {
                     imgSource: "images/快进.svg"
                     onClicked:
                     {
-                        console.log("快进")
-                        console.log(player.position + 5000)
                         player.seek(player.position + 5000)
                     }
                 }
@@ -193,7 +196,6 @@ Item {
                     imgSource: "images/播放.svg"
                     onClicked:
                     {
-                        console.log("播放")
                         if(player.playbackState == 1)
                         {
                             player.pause()
@@ -219,7 +221,6 @@ Item {
                     textColor: "black"
                     onClicked:
                     {
-                        console.log("倍速")
                         if(speedRec.visible === false)
                         {
                             speedRec.visible = true
@@ -310,10 +311,6 @@ Item {
                     defaultColor: "gray"
                     opacity: 0.5
                     imgSource: "images/全屏.svg"
-                    onClicked:
-                    {
-                        console.log("全屏")
-                    }
                 }
                 MySquareButton{
                     id: volumnBtn
@@ -325,8 +322,6 @@ Item {
                     imgSource: "images/音量.svg"
                     onClicked:
                     {
-                        console.log("音量")
-                        console.log(volumnBtn.x + volumnBtn.width / 2)
                         if(audioSlider.visible == true)
                         {
                             audioSlider.visible = false
@@ -350,7 +345,6 @@ Item {
                         stepSize: 1
                         value: 100
                         onValueChanged: {
-                            console.log(audioSlider.value / 100)
                             player.volume = audioSlider.value / 100
                         }
                     }

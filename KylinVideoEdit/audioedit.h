@@ -9,6 +9,9 @@
 class AudioEdit: public QObject
 {
      Q_OBJECT
+signals:
+    void finish();//C++调用命令行函数执行结束
+    void start();//C++调用命令行函数执行开始
 public slots:
     int audioSplit(QString inputFilePath,QString outputFilePath1,QString outputFilePath2,const double startTime,double duration);
     //音频的拆分
