@@ -1,0 +1,38 @@
+﻿//圆形按钮
+import QtQuick 2.0
+
+Rectangle {
+    id: rect
+    property alias text: txt.text
+    property alias color: rect.color
+    property alias radius: rect.radius
+    property bool isContainsMouse: false
+    signal clicked()
+    width: radius * 2
+//    height: radius * 2
+//    color: 'gray'
+    Text {
+        id: txt
+        anchors.centerIn: parent
+        font.pixelSize: 30
+//        text: qsTr("\u2630")
+    }
+    MouseArea{
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: rect.clicked()
+        onContainsMouseChanged: {
+            rect.isContainsMouse = containsMouse
+            if (rect.isContainsMouse)
+                rect.opacity = 0.8
+            else
+                rect.opacity = 0.2
+        }
+    }
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration: 500
+        }
+    }
+}
